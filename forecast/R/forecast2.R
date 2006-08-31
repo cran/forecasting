@@ -1,0 +1,261 @@
+# Mean forecast
+meanf <- function(x,h=10,conf=c(80,95),fan=FALSE)
+{
+    xname <- deparse(substitute(x))
+    n <- length(x)
+    if(!is.ts(x))
+        x <- ts(x)
+    start.x <- tsp(x)[1]
+    f=ts(rep(mean(x),h),start=start.x,f=frequency(x))
+    if(fan)
+        conf <- seq(50,99,by=1)
+    else
+    {
+        if(min(conf) > 0 & max(conf) < 1)
+            conf <- 100*conf
+        else if(min(conf) < 0 | max(conf) > 99.99)
+            stop("Confidence limit out of range")
+    }
+    nconf <- length(conf)
+    lower <- upper <- matrix(NA,nrow=h,ncol=nconf)
+    s <- sd(x)
+    for(i in 1:nconf)
+    {
+        tfrac <- qt( 0.5 - conf[i]/200, n-1)
+        w <- -tfrac * s*sqrt(1+1/n)
+        lower[,i] = f-w
+        upper[,i] = f+w
+    }
+    freq=frequency(x)
+    lower <- ts(lower,start=tsp(x)[2]+1/freq,f=freq)
+    upper <- ts(upper,start=tsp(x)[2]+1/freq,f=freq)
+    colnames(lower) <- colnames(upper) <- paste(conf,"%",sep="")
+    fits <- rep(NA,n-1)
+    for(i in 1:(n-1))
+        fits[i] <- mean(x[1:i])
+    res <- x[2:n] - fits
+
+    junk <- list(method="Mean",conf=conf,x=x,xname=xname,mean=ts(f,start=tsp(x)[2]+1/freq,f=freq),lower=lower,upper=upper,
+        model=list(mu=f[1],mu.se=s/sqrt(length(x)),sd=s,residuals=ts(c(x-f[1]),start=start.x,f=freq)),
+        fitted =ts(fits,start=start.x+1/freq,f=freq), residuals=ts(res,start=start.x+1/freq,f=freq))
+    junk$model$call <- match.call()
+
+    return(structure(junk,class="forecast"))
+}
+
+thetaf <- function(x,h=10,conf=c(80,95),fan=FALSE)
+{
+    if(fan)
+        conf <- seq(50,99,by=1)
+    else
+    {
+        if(min(conf) > 0 & max(conf) < 1)
+            conf <- 100*conf
+        else if(min(conf) < 0 | max(conf) > 99.99)
+            stop("Confidence limit out of range")
+    }
+    fcast <- ses(x,h=h)
+    tmp2 <- lsfit(0:(length(x)-1),x)$coef[2]/2
+    alpha <- fcast$model$par["alpha"]
+    n <- length(x)
+    fcast$mean <- fcast$mean + tmp2*(0:(h-1) + (1-(1-alpha)^n)/alpha)
+    fcast.se <- sqrt(fcast$model$sigma) * sqrt((0:(h-1))*alpha^2+1)
+    nconf <- length(conf)
+    fcast$lower <- fcast$upper <- matrix(NA,nrow=h,ncol=nconf)
+    for(i in 1:nconf)
+    {
+        zt <- -qnorm( 0.5 - conf[i]/200)
+        fcast$lower[,i] <- fcast$mean - zt*fcast.se
+        fcast$upper[,i] <- fcast$mean + zt*fcast.se
+    }
+    fcast$conf <- conf
+    fcast$method <- "Theta"
+    fcast$model <- list(alpha=alpha,drift=tmp2,sigma=fcast$model$sigma)
+    fcast$model$call <- match.call()
+    return(fcast)
+}
+
+# Random walk
+rwf <- function(x,h=10,drift=FALSE,conf=c(80,95),fan=FALSE)
+{
+    xname <- deparse(substitute(x))
+    n <- length(x)
+    nn <- 1:h
+    if(!is.ts(x))
+        x <- ts(x)
+    if(drift)
+    {
+        fit <- summary(lm(diff(x) ~ 1))
+        b <- fit$coefficients[1,1]
+        b.se <- fit$coefficients[1,2]
+        s <- fit$sigma
+        res <- residuals(fit)
+        method <- "Random walk with drift"
+    }
+    else
+    {
+        b <- b.se <- 0
+        s <- sd(diff(x))
+        res <- diff(x)
+        method <- "Random walk"
+    }
+    f <- x[n] + nn*b
+    se <- sqrt((nn*s^2) + (nn*b.se)^2)
+
+    if(fan)
+        conf <- seq(50,99,by=1)
+    else
+    {
+        if(min(conf) > 0 & max(conf) < 1)
+            conf <- 100*conf
+        else if(min(conf) < 0 | max(conf) > 99.99)
+            stop("Confidence limit out of range")
+    }
+    nconf <- length(conf)
+    z <- qnorm(.5 + conf/200)
+    lower <- upper <- matrix(NA,nrow=h,ncol=nconf)
+    for(i in 1:nconf)
+    {
+        lower[,i] <- f - z[i]*se
+        upper[,i] <- f + z[i]*se
+    }
+    freq=frequency(x)
+    lower <- ts(lower,start=tsp(x)[2]+1/freq,f=freq)
+    upper <- ts(upper,start=tsp(x)[2]+1/freq,f=freq)
+    colnames(lower) <- colnames(upper) <- paste(conf,"%",sep="")
+    junk <- list(method=method,conf=conf,x=x,xname=xname,mean=ts(f,start=tsp(x)[2]+1/freq,f=freq),lower=lower,upper=upper,
+        model=list(drift=b,drift.se=b.se,sd=s,residuals=ts(c(x-f[1]),start=tsp(x)[1],f=freq)),
+        fitted = ts(x[-n],start=tsp(x)[1]+1/freq,f=freq),
+        residuals = diff(x))
+    junk$model$call <- match.call()
+
+    return(structure(junk,class="forecast"))
+}
+
+BoxCox <- function(x,lambda)
+{
+    if(lambda==0)
+        log(x)
+    else
+        (x^lambda - 1)/lambda
+}
+
+InvBoxCox <- function(x,lambda)
+{
+    if(lambda==0)
+        exp(x)
+    else
+        (x*lambda + 1)^(1/lambda)
+}
+
+forecast.StructTS <- function(object,h=ifelse(object$call$type=="BSM", 2*object$xtsp[3], 10),conf=c(80,95),fan=FALSE,...)
+{
+    xname <- deparse(substitute(x))
+    x <- object$data
+    pred <- predict(object,n.ahead=h)
+    if(fan)
+        conf <- seq(50,99,by=1)
+    else
+    {
+        if(min(conf) > 0 & max(conf) < 1)
+            conf <- 100*conf
+        else if(min(conf) < 0 | max(conf) > 99.99)
+            stop("Confidence limit out of range")
+    }
+    nint <- length(conf)
+    lower <- matrix(NA,ncol=nint,nrow=length(pred$pred))
+    upper <- lower
+    for(i in 1:nint)
+    {
+        qq <- qnorm(0.5*(1+conf[i]/100))
+        lower[,i] <- pred$pred - qq*pred$se
+        upper[,i] <- pred$pred + qq*pred$se
+    }
+    colnames(lower) = colnames(upper) = paste(conf,"%",sep="")
+    if(object$call$type=="BSM")
+        method <- "Basic structural model"
+    else if(object$call$type=="level")
+        method <- "Local level structural model"
+    else if(object$call$type=="trend")
+        method <- "Local linear structural model"
+    return(structure(list(method=method,model=object,conf=conf,mean=pred$pred,lower=lower,upper=upper,
+        x=x,xname=xname,fitted=x-residuals(object),residuals=residuals(object)),
+        class="forecast"))
+}
+
+forecast.HoltWinters <- function(object,h=ifelse(frequency(object$x)>1,2*frequency(object$x),10),conf=c(80,95),fan=FALSE,...)
+{
+    xname <- deparse(substitute(x))
+    x <- object$x
+    pred <- predict(object,n.ahead=h,prediction.interval=TRUE,level=conf[1]/100)
+    pmean <- pred[,1]
+    if(fan)
+        conf <- seq(50,99,by=1)
+    else
+    {
+        if(min(conf) > 0 & max(conf) < 1)
+            conf <- 100*conf
+        else if(min(conf) < 0 | max(conf) > 99.99)
+            stop("Confidence limit out of range")
+    }
+    nint <- length(conf)
+    upper <- lower <- matrix(NA,ncol=nint,nrow=length(pred[,1]))
+    se <- (pred[,3]-pred[,2])/(2*qnorm(0.5*(1+conf[1]/100)))
+    for(i in 1:nint)
+    {
+        qq <- qnorm(0.5*(1+conf[i]/100))
+        lower[,i] <- pmean - qq*se
+        upper[,i] <- pmean + qq*se
+    }
+    colnames(lower) = colnames(upper) = paste(conf,"%",sep="")
+    method <- "HoltWinters"
+    return(structure(list(method=method, model=object, conf=conf,
+        mean=pmean, lower=lower, upper=upper,
+        x=x, xname=xname, fitted=object$fitted, residuals=residuals(object)),
+        class="forecast"))
+}
+
+## CROSTON
+
+croston <- function(x,h=10,alpha)
+{
+    if(sum(x<0) > 0)
+        stop("Series should not contain negative values")
+    y <- x[x>0]
+    tt <- diff(c(0,(1:length(x))[x>0]))
+    if(missing(alpha))
+    {
+        a1 <- HoltWinters(y,beta=0,gamma=0,alpha=NULL)$alpha
+        a2 <- HoltWinters(tt,beta=0,gamma=0,alpha=NULL)$alpha
+        alpha <- max((a1+a2)/2,.01) # Can't have zero alpha
+    }
+    out <- croston2(x,h,alpha)
+    out$x <- x
+    out$xname <- deparse(substitute(x))
+    out$residuals <- x-out$fitted
+    out$method <- "Croston's method"
+    return(structure(out,class="forecast"))
+}
+
+croston2 <- function(x,h=10,alpha=0.1,nofits=FALSE)
+{
+    y <- x[x>0]
+    tt <- diff(c(0,(1:length(x))[x>0]))
+    if(length(y)==1 & length(tt)==1)
+        return(rep(y/tt,h))
+    else if(length(y)<=1 | length(tt)<=1)
+        return(rep(NA,h))
+    y.f <- forecast(HoltWinters(y,beta=0,gamma=0,alpha=alpha),h=h)
+    p.f <- forecast(HoltWinters(tt,beta=0,gamma=0,alpha=alpha),h=h)
+    if(nofits)
+        return(y.f$mean/p.f$mean)
+    else
+    {
+        n <- length(x)
+        junk <- x*NA
+        for(i in 1:(n-1))
+            junk[i+1] <- croston2(x[1:i],h=1,alpha=alpha,nofits=TRUE)
+        return(list(mean = y.f$mean/p.f$mean, fitted = junk, model=list(demand=y.f,period=p.f)))
+    }
+}
+

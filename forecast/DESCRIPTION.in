@@ -1,0 +1,5 @@
+Package: forecast
+Title: Forecasting functions for time series
+Suggests: tseries
+Description: Various functions to aid in forecasting including
+    exponential smoothing via state space models, arima models, and many more.
