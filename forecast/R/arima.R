@@ -123,7 +123,7 @@ ndiffs <- function(x,alpha=0.05)
         options(warn=oldwarn$warn)
         return(d)
     }
-    while(p.v < alpha & d<3)
+    while(p.v < alpha & d<2)
     {
         x <- diff(x)
         d <- d+1

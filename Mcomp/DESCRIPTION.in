@@ -1,3 +1,4 @@
 Package: Mcomp
 Title: Data from the M-competitions
-Description: The 1001 time series from the M-competition and the 3003 time series from the IJF-M3 competition.
+Description: The 1001 time series from the M-competition (Makridakis et al. 1982) 
+  and the 3003 time series from the IJF-M3 competition (Makridakis and Hibon, 2000).
