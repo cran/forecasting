@@ -1,7 +1,7 @@
 Bundle: forecasting
 Contains: forecast fma Mcomp
-Version: 1.01
-Date: 2006-09-24
+Version: 1.02
+Date: 2006-10-12
 Depends: R (>= 2.0.0), graphics, stats
 Imports: tseries
 LazyData: yes
@@ -11,4 +11,4 @@ Maintainer: Rob J Hyndman <Rob.Hyndman@buseco.monash.edu.au>
 BundleDescription: Functions and datasets for forecasting.
 License: GPL (version 2 or later).
 URL: http://www.robhyndman.info/Rlibrary/forecast/
-Packaged: Mon Sep 25 20:58:42 2006; hyndman
+Packaged: Mon Oct 16 10:25:45 2006; hornik

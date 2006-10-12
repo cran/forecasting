@@ -5,7 +5,7 @@
 best.arima(x, d = ndiffs(x), D = 0, max.p = 5,
              max.q = 5, max.P = 2, max.Q = 2, max.order = 5,
              stationary = FALSE, drift = TRUE, trend = FALSE,
-             ic = c("aic", "bic"))
+             ic = c("aic", "bic", "aicc"))
 }
 
 \arguments{

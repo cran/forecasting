@@ -54,7 +54,11 @@ splinef <- function(x, h=10, conf=c(80,95), fan=FALSE)
     newx <- (x-mean.x)/stdev.x
 
     # Find optimal lambda
-    lambda.est <- optimize(spline.loglik, interval=c(1e-6,1e7),y = newx)$minimum/1e6
+    if(n > 100) # Use only last 100 observations to get lambda
+        xx <- newx[(n-99):n]
+    else
+        xx <- newx
+    lambda.est <- optimize(spline.loglik, interval=c(1e-6,1e7),y = xx)$minimum/1e6
 
     # Compute fitted values
     r <- 256 * smooth.spline(1:n,newx,spar=0)$lambda
@@ -68,15 +72,19 @@ splinef <- function(x, h=10, conf=c(80,95), fan=FALSE)
     newmat <- spline.matrices(n,lambda.est,n0=h)
 
     # Get one-step predictors
-    # This is probably inefficient but I can't think of a better way right now
     yfit <- e <- rep(NA,n)
-    for(i in 1:(n-1))
+    if(n > 200)
+        warning("Series too long to compute in-sample fits and residuals")
+    else  # This is probably grossly inefficient but I can't think of a better way right now
     {
-        U <- mat$Omega[1:i,i+1]
-        Oinv <- solve(mat$Omega[1:i,1:i]/1e6)/1e6
-        yfit[i+1] <- t(U) %*% Oinv %*% newx[1:i]
-        sd <- sqrt(mat$Omega[i+1,i+1] - t(U) %*% Oinv %*% U)
-        e[i+1] <- (newx[i+1]-yfit[i+1])/sd
+        for(i in 1:(n-1))
+        {
+            U <- mat$Omega[1:i,i+1]
+            Oinv <- solve(mat$Omega[1:i,1:i]/1e6)/1e6
+            yfit[i+1] <- t(U) %*% Oinv %*% newx[1:i]
+            sd <- sqrt(mat$Omega[i+1,i+1] - t(U) %*% Oinv %*% U)
+            e[i+1] <- (newx[i+1]-yfit[i+1])/sd
+        }
     }
     # Compute sigma^2
     sigma2 <- mean(e^2,na.rm=TRUE)

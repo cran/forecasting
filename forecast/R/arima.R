@@ -1,5 +1,5 @@
 best.arima <- function(x,d=ndiffs(x),D=0,max.p=5,max.q=5,max.P=2,max.Q=2,max.order=5,stationary=FALSE,
-    drift=TRUE, trend=FALSE, ic=c("aic","bic"))
+    drift=TRUE, trend=FALSE, ic=c("aic","bic","aicc"))
 {
     ic <- match.arg(ic)
     m <- frequency(x)
@@ -78,12 +78,8 @@ best.arima <- function(x,d=ndiffs(x),D=0,max.p=5,max.q=5,max.P=2,max.Q=2,max.ord
                                 {
                                     npar <- i+j+I+J+KK
                                     fit$bic <- fit$aic + npar*(log(n) - 2)
-                                    fit$ic <- if(ic=="bic")
-                                                fit$bic
-                                              else if(ic=="aic")
-                                                fit$aic
-                                              else
-                                                stop("This shouldn't happen")
+                                    fit$aicc <- fit$aic + 2*npar*(n/(n-npar-1) - 1)
+                                    fit$ic <- switch(ic,bic=fit$bic,aic=fit$aic,aicc=fit$aicc)
                                     if(fit$code==0 & fit$ic < best.ic)
                                     {
                                         order <- c(i,d,j)
