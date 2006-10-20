@@ -4,9 +4,9 @@
 \title{Exponential smoothing state space model}
 \usage{
 ets(y, model="ZZZ", damped=NULL, alpha=NULL, beta=NULL, gamma=NULL, phi=NULL,
-    additive.only=FALSE, lower=c(rep(0.01,3), 0.8), upper=rep(0.99,4),
-    opt.crit=c("lik","amse","mse","sigma"), nmse=3, bounds=c("both","usual","admissible"),
-    ic=c("aic","bic","aicc"))
+	additive.only=FALSE, lower=c(rep(0.01,3), 0.8), upper=rep(0.99,4),
+	opt.crit=c("lik","amse","mse","sigma"), nmse=3, bounds=c("both","usual","admissible"),
+	ic=c("aic","aicc","bic"))
 }
 
 \arguments{
@@ -28,8 +28,8 @@ parameters.}
 \item{lower}{Lower bounds for the parameters (alpha, beta, gamma, phi)}
 \item{upper}{Upper bounds for the parameters (alpha, beta, gamma, phi)}
 \item{opt.crit}{Optimization criterion. One of "mse" (Mean Square Error),
-    "amse" (Average MSE over first \code{nmse} forecast horizons), "sigma"
-    (Standard deviation of residuals), or "lik" (Log-likelihood, the default).}
+	"amse" (Average MSE over first \code{nmse} forecast horizons), "sigma"
+	(Standard deviation of residuals), or "lik" (Log-likelihood, the default).}
 \item{nmse}{Number of steps for average multistep MSE (1<=\code{nmse}<=10).}
 \item{bounds}{Type of parameter space to impose: \code{"usual" }
 indicates all parameters must lie between specified lower and

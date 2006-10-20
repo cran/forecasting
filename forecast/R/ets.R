@@ -2,7 +2,7 @@ ets <- function(y, model="ZZZ", damped=NULL,
 		alpha=NULL, beta=NULL, gamma=NULL, phi=NULL, additive.only=FALSE,
 		lower=c(rep(0.01,3), 0.8), upper=rep(0.99,4),
 		opt.crit=c("lik","amse","mse","sigma"), nmse=3, bounds=c("both","usual","admissible"),
-		ic = c("aic","bic","aicc"))
+		ic = c("aic","aicc","bic"))
 {
 	opt.crit <- match.arg(opt.crit)
 	bounds <- match.arg(bounds)
@@ -52,13 +52,12 @@ ets <- function(y, model="ZZZ", damped=NULL,
 		else
 			substr(model,3,3) <- seasontype <- "N"
 	}
-	# Experimental
-#	  else if(length(y) < 3*m & (seasontype!="N"))
-#	  {
-#		  if(seasontype != "Z")
-#			  warning("Insufficient data to fit a seasonal model")
-#		  substr(model,3,3) <- seasontype <- "N"
-#	  }
+#	 else if(length(y) < 3*m & (seasontype!="N"))
+#	 {
+#		 if(seasontype != "Z")
+#			 warning("Insufficient data to fit a seasonal model")
+#		 substr(model,3,3) <- seasontype <- "N"
+#	 }
 
 	# Check inputs
 	if((errortype=="A" & (trendtype=="M" | seasontype=="M")) |
@@ -139,7 +138,7 @@ ets <- function(y, model="ZZZ", damped=NULL,
 }
 
 etsmodel <- function(y, errortype, trendtype, seasontype, damped,
-  alpha=NULL, beta=NULL, gamma=NULL, phi=NULL, 
+  alpha=NULL, beta=NULL, gamma=NULL, phi=NULL,
   lower, upper, opt.crit, nmse, bounds)
 {
 	# Initialize smoothing parameters
@@ -177,6 +176,8 @@ etsmodel <- function(y, errortype, trendtype, seasontype, damped,
 	upper <- c(upper,rep(Inf,nstate))
 
 	np <- length(par)
+	if(np >= length(y)-1) # Not enough data to continue
+		return(list(aic=Inf,bic=Inf,aicc=Inf,mse=Inf,amse=Inf,fit=NULL,par=par,states=init.state))
 
 	# Optimize parameters and state
 	if(length(par)==1)
@@ -187,14 +188,7 @@ etsmodel <- function(y, errortype, trendtype, seasontype, damped,
 		opt.crit=opt.crit, nmse=nmse, bounds=bounds, m=m,pnames=names(par),pnames2=names(par.noopt))
 	fit.par <- fred$par
 
-#	  fred <- nlm(lik,par,y=y,fns=fns, nstate=nstate, errortype=errortype, trendtype=trendtype,
-#		  seasontype=seasontype, damped=damped, par.noopt=par.noopt, lowerb=lower, upperb=upper,
-#		  opt.crit=opt.crit, nmse=nmse, bounds=bounds, m=m,pnames=names(par),pnames2=names(par.noopt))
-#	  fit.par <- fred$estimate
-
 	names(fit.par) <- names(par)
-
-#	  browser()
 
 	if(length(par)==1)
 		options(warn=tmp)
@@ -248,7 +242,7 @@ initparam <- function(alpha,beta,gamma,phi,trendtype,seasontype,damped,lower,upp
 	if(is.null(alpha))
 	{
 		if(is.null(beta) & is.null(gamma))
-			alpha <- lower[1] + .2*(upper[1]-lower[1])
+			alpha <- lower[1] + .1*(upper[1]-lower[1])
 		else if(is.null(gamma))
 			alpha <- beta+0.001
 		else if(is.null(beta))
@@ -341,7 +335,7 @@ initstate <- function(y,trendtype,seasontype)
 		# Do decomposition
 		if(length(y)>=3*m)
 			y.d <- decompose(y,type=switch(seasontype,A="additive",M="multiplicative"))
-		else  ## Experimental
+		else
 			y.d <- list(seasonal= switch(seasontype,A=y-mean(y),M=y/mean(y)))
 		init.seas <- rev(y.d$seasonal[2:m])
 		names(init.seas) <- paste("s",0:(m-2),sep="")
@@ -449,18 +443,18 @@ print.ets <- function(x,...)
 	ncoef <- length(x$initstate)
 
 	cat("  Smoothing parameters:\n")
-	cat(paste("	alpha =", round(x$par["alpha"], 4), "\n"))
+	cat(paste("	   alpha =", round(x$par["alpha"], 4), "\n"))
 	if(x$components[2]!="N")
-		cat(paste("	beta  =", round(x$par["beta"], 4), "\n"))
+		cat(paste("	   beta	 =", round(x$par["beta"], 4), "\n"))
 	if(x$components[3]!="N")
-		cat(paste("	gamma =", round(x$par["gamma"], 4), "\n"))
+		cat(paste("	   gamma =", round(x$par["gamma"], 4), "\n"))
 	if(x$components[4]!="FALSE")
-		cat(paste("	phi   =", round(x$par["phi"], 4), "\n"))
+		cat(paste("	   phi	 =", round(x$par["phi"], 4), "\n"))
 
-	cat("\n  Initial states:\n")
-	cat(paste("	l =", round(x$initstate[1], 4), "\n"))
+	cat("\n	 Initial states:\n")
+	cat(paste("	   l =", round(x$initstate[1], 4), "\n"))
 	if (x$components[2]!="N")
-		cat(paste("	b =", round(x$initstate[2], 4), "\n"))
+		cat(paste("	   b =", round(x$initstate[2], 4), "\n"))
 	else
 	{
 		x$initstate <- c(x$initstate[1], NA, x$initstate[2:ncoef])
@@ -468,25 +462,25 @@ print.ets <- function(x,...)
 	}
 	if (x$components[3]!="N")
 	{
-		cat("	s = ")
+		cat("	 s = ")
 		if (ncoef <= 8)
 			cat(round(x$initstate[3:ncoef], 4))
 		else
 		{
 			cat(round(x$initstate[3:8], 4))
-			cat("\n		   ")
+			cat("\n			  ")
 			cat(round(x$initstate[9:ncoef], 4))
 		}
 		cat("\n")
 	}
 
-	cat("\n  sigma:   ")
+	cat("\n	 sigma:	 ")
 	cat(round(sqrt(x$sigma2),4))
-	cat("\n  AIC:	 ")
+	cat("\n	 AIC:	 ")
 	cat(round(x$aic,4))
-	cat("\n  AICc:	")
+	cat("\n	 AICc:	 ")
 	cat(round(x$aicc,4))
-	cat("\n  BIC:	 ")
+	cat("\n	 BIC:	 ")
 	cat(round(x$bic,4))
 	cat("\n")
 }
