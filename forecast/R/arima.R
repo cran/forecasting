@@ -44,11 +44,10 @@ best.arima <- function(x,d=ndiffs(x),D=0,max.p=5,max.q=5,max.P=2,max.Q=2,max.ord
 							}
 							else if(trend & d==0 & KK==2 & !stationary) # Allow linear trend when d=0
 							{
-								xdrift <- seq(1,n)
 								if(seasonal)
-									fit <- try(arima(x,order=c(i,d,j),seasonal=list(order=c(I,D,J),period=m),xreg=xdrift,include.mean=TRUE),silent=TRUE)
+									fit <- try(arima(x,order=c(i,d,j),seasonal=list(order=c(I,D,J),period=m),include.drift=TRUE,include.mean=TRUE),silent=TRUE)
 								else
-									fit <- try(arima(x,order=c(i,d,j),xreg=xdrift,include.mean=TRUE),silent=TRUE)
+									fit <- try(arima(x,order=c(i,d,j),include.drift=TRUE,include.mean=TRUE),silent=TRUE)
 								if(class(fit) != "try-error")
 								{
 									fitnames <- names(fit$coef)
@@ -58,11 +57,10 @@ best.arima <- function(x,d=ndiffs(x),D=0,max.p=5,max.q=5,max.P=2,max.Q=2,max.ord
 							}
 							else if(drift & d==1 & KK==1)# allow drift when d=1
 							{
-								xdrift <- seq(1,n)
 								if(seasonal)
-									fit <- try(arima(x,order=c(i,d,j),seasonal=list(order=c(I,D,J),period=m),xreg=xdrift),silent=TRUE)
+									fit <- try(arima(x,order=c(i,d,j),seasonal=list(order=c(I,D,J),period=m),include.drift=TRUE),silent=TRUE)
 								else
-									fit <- try(arima(x,order=c(i,d,j),xreg=xdrift),silent=TRUE)
+									fit <- try(arima(x,order=c(i,d,j),include.drift=TRUE),silent=TRUE)
 								if(class(fit) != "try-error")
 								{
 									fitnames <- names(fit$coef)
@@ -258,14 +256,21 @@ fitted.Arima <- function(object,...)
 }
 
 # Calls arima from stats package and adds data to the returned object
+# Also allows refitting to new data
+# and drift terms to be included.
 arima <- function(x, order = c(0, 0, 0),
 	  seasonal = list(order = c(0, 0, 0), period = NA),
-	  xreg = NULL, include.mean = TRUE, transform.pars = TRUE,
+	  xreg = NULL, include.mean = TRUE, include.drift = FALSE, transform.pars = TRUE,
 	  fixed = NULL, init = NULL, method = c("CSS-ML", "ML", "CSS"),
 	  n.cond, optim.control = list(), kappa = 1e6, model=NULL)
 {
 	if(!is.null(model))
 		return(arima2(x,model))
+	if(include.drift)
+	{
+		drift <- 1:length(x)
+		xreg <- cbind(xreg,drift)
+	}
 	if(is.null(xreg))
 		tmp <- stats:::arima(x=x,order=order,seasonal=seasonal,include.mean=include.mean,
 			transform.pars=transform.pars,fixed=fixed,init=init,method=method,n.cond=n.cond,optim.control=optim.control,kappa=kappa)

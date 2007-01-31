@@ -3,9 +3,10 @@
 \title{Fit ARIMA model to univariate time series}
 \usage{
 arima(x, order = c(0, 0, 0), seasonal = list(order = c(0, 0, 0), period = NA),
-      xreg = NULL, include.mean = TRUE, transform.pars = TRUE,
-      fixed = NULL, init = NULL, method = c("CSS-ML", "ML", "CSS"),
-      n.cond, optim.control = list(), kappa = 1e6, model=NULL)
+      xreg = NULL, include.mean = TRUE, include.drift = FALSE, 
+      transform.pars = TRUE, fixed = NULL, init = NULL, 
+      method = c("CSS-ML", "ML", "CSS"), n.cond, 
+      optim.control = list(), kappa = 1e6, model=NULL)
 }
 
 \arguments{
@@ -14,6 +15,8 @@ arima(x, order = c(0, 0, 0), seasonal = list(order = c(0, 0, 0), period = NA),
 \item{seasonal}{A specification of the seasonal part of the ARIMA model, plus the period (which defaults to frequency(x)). This should be a list with components order and period, but a specification of just a numeric vector of length 3 will be turned into a suitable list with the specification as the order.}
 \item{xreg}{Optionally, a vector or matrix of external regressors, which must have the same number of rows as x.}
 \item{include.mean}{Should the ARIMA model include a mean term? The default is TRUE for undifferenced series, FALSE for differenced ones (where a mean would not affect the fit nor predictions).}
+\item{include.drift}{Should the ARIMA model include a linear drift term? (i.e., a linear regression with ARIMA errors is fitted.) 
+    The default is FALSE.}
 \item{transform.pars}{Logical. If true, the AR parameters are transformed to ensure that they remain in the region of stationarity. Not used for method = "CSS".}
 \item{fixed}{optional numeric vector of the same length as the total number of parameters. If supplied, only NA entries in fixed will be varied. transform.pars = TRUE will be overridden (with a warning) if any AR parameters are fixed. It may be wise to set transform.pars = FALSE when fixing MA parameters, especially near non-invertibility.}
 \item{init}{optional numeric vector of initial parameter values. Missing values will be filled in, by zeroes except for regression coefficients. Values already specified in fixed will be ignored.}

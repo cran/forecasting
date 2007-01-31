@@ -1,8 +1,8 @@
 \name{forecast.ets}
 \alias{forecast.ets}
 \title{Forecasting using ETS models}
-\usage{forecast.ets(obj, h=ifelse(obj$m>1, 2*obj$m, 10), conf=c(80,95),
-    fan=FALSE, simulate=FALSE, bootstrap=FALSE, npaths=5000,...)
+\usage{\method{forecast}{ets}(obj, h=ifelse(obj$m>1, 2*obj$m, 10), conf=c(80,95),
+	fan=FALSE, simulate=FALSE, bootstrap=FALSE, npaths=5000,...)
 }
 
 \arguments{

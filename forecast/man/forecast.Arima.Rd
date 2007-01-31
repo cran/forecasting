@@ -2,9 +2,9 @@
 \alias{forecast.Arima}
 \alias{forecast.ar}
 \title{Forecasting using ARIMA models}
-\usage{forecast.Arima(object, h=ifelse(object$arma[5]>1,2*object$arma[5],10),
-    conf=c(80,95), fan=FALSE, xreg=NULL,...)
-forecast.ar(object, h=10, conf=c(80,95), fan=FALSE, ...)
+\usage{\method{forecast}{Arima}(object, h=ifelse(object$arma[5]>1,2*object$arma[5],10),
+	conf=c(80,95), fan=FALSE, xreg=NULL,...)
+\method{forecast}{ar}(object, h=10, conf=c(80,95), fan=FALSE, ...)
 }
 
 \arguments{

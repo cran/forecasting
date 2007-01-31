@@ -1,8 +1,8 @@
 \name{forecast.HoltWinters}
 \alias{forecast.HoltWinters}
 \title{Forecasting using Holt-Winters objects}
-\usage{forecast.HoltWinters(object, h=ifelse(frequency(object$x)>1,2*frequency(object$x),10),
-    conf=c(80,95),fan=FALSE,...)
+\usage{\method{forecast}{HoltWinters}(object, h=ifelse(frequency(object$x)>1,2*frequency(object$x),10),
+	conf=c(80,95),fan=FALSE,...)
 }
 
 \arguments{

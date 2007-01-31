@@ -1,8 +1,8 @@
 \name{forecast.StructTS}
 \alias{forecast.StructTS}
 \title{Forecasting using Structural Time Series models}
-\usage{forecast.StructTS(object, h=ifelse(object$call$type=="BSM",2*object$xtsp[3],10),
-    conf=c(80,95), fan=FALSE, ...)
+\usage{\method{forecast}{StructTS}(object, h=ifelse(object$call$type=="BSM",2*object$xtsp[3],10),
+	conf=c(80,95), fan=FALSE, ...)
 }
 
 \arguments{

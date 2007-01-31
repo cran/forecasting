@@ -19,7 +19,7 @@ The function \code{\link{forecast.ts}} makes forecasts using exponential smoothi
 \details{The default behaviour is to use a model estimated using \code{\link{ets}}.}
 
 \usage{forecast(...)
-forecast.ts(x, h, conf=c(80,95), fan=FALSE, ...)}
+\method{forecast}{ts}(x, h, conf=c(80,95), fan=FALSE, ...)}
 
 \arguments{
 \item{x}{a time series or time series model for which forecasts are required}

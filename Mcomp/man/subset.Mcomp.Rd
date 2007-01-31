@@ -6,12 +6,12 @@ M Competitions. Subsets can be for specific periods, or
 specific types of data or both.
 }
 \usage{
-subset.Mcomp(x, cond1, cond2, ...)
+\method{subset}{Mcomp}(x, cond1, cond2, ...)
 }
 \arguments{
   \item{x}{M-competition data or a subset of M-competition data }
   \item{cond1}{Type or period of the data. Type is a character variable and period could be
-                 character or numeric.}
+				 character or numeric.}
   \item{cond2}{Optional second condition specifying type or period of the data, depending on \code{cond1}.
   If \code{cond1} denotes type then \code{cond2} would
   denote period, but if \code{cond1} denotes period then \code{cond2} would denote
