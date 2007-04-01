@@ -1,13 +1,13 @@
 \name{croston}
 \alias{croston}
 \title{Forecasts for intermittent demand using Croston's method}
-\usage{croston(x, h=10, alpha)
+\usage{croston(x, h=10, alpha=0.1)
 }
 
 \arguments{
 \item{x}{a numeric vector or time series}
 \item{h}{Number of periods for forecasting.}
-\item{alpha}{Value of alpha. If missing, it is estimated.}
+\item{alpha}{Value of alpha. Default value is 0.1.}
 }
 
 \description{Returns forecasts and other information for Croston's
@@ -19,9 +19,7 @@ Croston's method involves using simple exponential smoothing (SES) on
 the non-zero elements of the time series and a separate application
 of SES to the times between non-zero elements of the time series. The
 smoothing parameters of the two applications of SES are assumed to be
-equal and are denoted by \code{alpha}. If \code{alpha} is omitted, it
-is estimated by averaging the two alpha values selected for each
-series by the \code{\link[stats]{HoltWinters}} function.
+equal and are denoted by \code{alpha}.
 
 Note that prediction intervals are not computed as Croston's method
 has no underlying stochastic model.}

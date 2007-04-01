@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{forecast}(x, include, plot.conf = TRUE, shaded = TRUE, shadecols
 				 = switch(1 + (length(x$conf) > 1), 7, length(x$conf):1),
-				 shadepalette = heat.colors(length(x$conf)), lambda = NULL,
+                shadepalette=heat.colors(length(x$conf)+1)[-1], lambda = NULL,
 				 col = 1, fcol = 4, ylim = NULL, main = NULL, ylab = "", xlab = "", ...)
 \method{plot}{splineforecast}(x,fitcol=2,...)
 }

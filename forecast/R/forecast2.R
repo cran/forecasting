@@ -217,18 +217,18 @@ forecast.HoltWinters <- function(object,h=ifelse(frequency(object$x)>1,2*frequen
 
 ## CROSTON
 
-croston <- function(x,h=10,alpha)
+croston <- function(x,h=10,alpha=0.1)
 {
     if(sum(x<0) > 0)
         stop("Series should not contain negative values")
     y <- x[x>0]
     tt <- diff(c(0,(1:length(x))[x>0]))
-    if(missing(alpha))
-    {
-        a1 <- HoltWinters(y,beta=0,gamma=0,alpha=NULL)$alpha
-        a2 <- HoltWinters(tt,beta=0,gamma=0,alpha=NULL)$alpha
-        alpha <- max((a1+a2)/2,.01) # Can't have zero alpha
-    }
+#    if(missing(alpha))
+#    {
+#        a1 <- HoltWinters(y,beta=0,gamma=0,alpha=NULL)$alpha
+#        a2 <- HoltWinters(tt,beta=0,gamma=0,alpha=NULL)$alpha
+#        alpha <- max((a1+a2)/2,.01) # Can't have zero alpha
+#    }
     out <- croston2(x,h,alpha)
     out$x <- x
     out$xname <- deparse(substitute(x))

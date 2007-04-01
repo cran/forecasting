@@ -55,7 +55,7 @@ summary.forecast <- function(object,...)
 
 plot.forecast <- function(x, include, plot.conf=TRUE, shaded=TRUE,
         shadecols=switch(1+(length(x$conf)>1),7,length(x$conf):1),
-        shadepalette=heat.colors(length(x$conf)),
+        shadepalette=heat.colors(length(x$conf)+1)[-1],
         lambda=NULL, col=1,fcol=4, ylim=NULL, main=NULL, ylab="",xlab="",...)
 {
     if(is.element("x",names(x))) # Assume stored as x
@@ -143,5 +143,3 @@ plot.forecast <- function(x, include, plot.conf=TRUE, shaded=TRUE,
     else
         invisible(list(mean=pred.mean))
 }
-
-

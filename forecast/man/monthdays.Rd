@@ -1,6 +1,6 @@
 \name{monthdays}
 \alias{monthdays}
-\title{Forecast errors}
+\title{Number of days in each season}
 \usage{monthdays(x)}
 
 \arguments{

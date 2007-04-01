@@ -4,14 +4,15 @@
 \title{Exponential smoothing state space model}
 \usage{
 ets(y, model="ZZZ", damped=NULL, alpha=NULL, beta=NULL, gamma=NULL, phi=NULL,
-	additive.only=FALSE, lower=c(rep(0.01,3), 0.8), upper=rep(0.99,4),
-	opt.crit=c("lik","amse","mse","sigma"), nmse=3, bounds=c("both","usual","admissible"),
-	ic=c("aic","aicc","bic"))
+    additive.only=FALSE, lower=c(rep(0.01,3), 0.8), upper=c(rep(0.99,3),0.98),
+    opt.crit=c("lik","amse","mse","sigma"), nmse=3,
+    bounds=c("both","usual","admissible"),  ic=c("aic","aicc","bic"))
 }
 
 \arguments{
 \item{y}{a numeric vector or time series}
-\item{model}{Usually a three-character string identifying method using the framework terminology of Hyndman et al. (2002).
+\item{model}{Usually a three-character string identifying method using the framework terminology of Hyndman et al. (2002) and
+Hyndman et al. (2008).
 The first letter denotes the error type ("A", "M" or "Z"); the second letter denotes the trend
 type ("N","A","M" or "Z"); and the third letter denotes the season type ("N","A","M" or "Z").
 In all cases, "N"=none, "A"=additive, "M"=multiplicative and "Z"=automatically selected.
@@ -19,17 +20,19 @@ So, for example, "ANN" is simple exponential  smoothing with additive errors,
 "MAM" is multiplicative Holt-Winters' method with multiplicative errors, and so on. It is also possible for the model
 to be equal to the output from a previous call to \code{ets}. In this case, the same model is fitted to \code{y} without re-estimating any
 parameters.}
-\item{damped}{If TRUE, use a damped trend (either additive or multiplicative)}
-\item{alpha}{Value of alpha. If missing, it is estimated.}
-\item{beta}{Value of beta. If missing, it is estimated.}
-\item{gamma}{Value of gamma. If missing, it is estimated.}
-\item{phi}{Value of phi. If missing, it is estimated.}
-\item{additive.only}{If TRUE, will only consider additive models.}
+\item{damped}{If TRUE, use a damped trend (either additive or multiplicative). If NULL,
+    both damped and non-damped trends will be tried and the best model (according to the
+    information criterion \code{ic}) returned.}
+\item{alpha}{Value of alpha. If NULL, it is estimated.}
+\item{beta}{Value of beta. If NULL, it is estimated.}
+\item{gamma}{Value of gamma. If NULL, it is estimated.}
+\item{phi}{Value of phi. If NULL, it is estimated.}
+\item{additive.only}{If TRUE, will only consider additive models. Default is FALSE.}
 \item{lower}{Lower bounds for the parameters (alpha, beta, gamma, phi)}
 \item{upper}{Upper bounds for the parameters (alpha, beta, gamma, phi)}
 \item{opt.crit}{Optimization criterion. One of "mse" (Mean Square Error),
-	"amse" (Average MSE over first \code{nmse} forecast horizons), "sigma"
-	(Standard deviation of residuals), or "lik" (Log-likelihood, the default).}
+    "amse" (Average MSE over first \code{nmse} forecast horizons), "sigma"
+    (Standard deviation of residuals), or "lik" (Log-likelihood, the default).}
 \item{nmse}{Number of steps for average multistep MSE (1<=\code{nmse}<=10).}
 \item{bounds}{Type of parameter space to impose: \code{"usual" }
 indicates all parameters must lie between specified lower and
@@ -40,7 +43,7 @@ admissible space; \code{"both"} (default) takes the intersection of these region
 
 \description{Returns ets model applied to x.
 }
-\details{Based on the classification of methods as described in Hyndman et al (2002).
+\details{Based on the classification of methods as described in Hyndman et al (2008).
 
 The methodology is fully automatic. The only required argument for ets is the time series. The model
 is chosen automatically if not specified. This methodology performed extremely well on the
@@ -56,14 +59,17 @@ the value returned by \code{ets} and associated functions.}
 
 
 \references{Hyndman, R.J., Koehler, A.B., Snyder,
-R.D., Grose, S. (2002) "A state space framework for automatic
+R.D., and Grose, S. (2002) "A state space framework for automatic
 forecasting using exponential smoothing methods",
 \emph{International J. Forecasting}, \bold{18}(3), 439--454.
 
-Hyndman, R.J., Akram, Md., and Archibald, B. (2003) "The
+Hyndman, R.J., Akram, Md., and Archibald, B. (2007) "The
 admissible parameter space for exponential smoothing models".
-Working paper, Department of Econometrics and Business
-Statistics, Monash University.
+\emph{Annals of Statistical Mathematics}, to appear.
+
+Hyndman, R.J., Koehler, A.B., Ord, J.K., and Snyder, R.D. (2008)
+\emph{Forecasting with exponential smoothing: the state space approach},
+Springer-Verlag. \url{http://www.robhyndman.info/expsmooth}.
 }
 
 
