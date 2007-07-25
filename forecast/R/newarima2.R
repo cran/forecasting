@@ -36,8 +36,10 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
 
     if(m > 1)
     {
-        max.p <- min(max.p, m-1)
-        max.q <- min(max.q, m-1)
+        if(max.P > 0)
+            max.p <- min(max.p, m-1)
+        if(max.Q > 0)
+            max.q <- min(max.q, m-1)
     }
 
     # Starting model
@@ -59,24 +61,30 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
         p <- q <- P <- Q <- 0
     }
     # Basic AR model
-    fit <- myarima(x,order=c(1,d,0),seasonal=c(m>1,D,0),constant=constant,ic,trace)
-    results[3,] <- c(1,d,0,m>1,D,0,constant,fit$ic)
-    if(fit$ic < bestfit$ic)
+    if(max.p > 0 | max.P > 0)
     {
-        bestfit <- fit
-        p <- 1
-        P <- m>1
-        q <- Q <- 0
+        fit <- myarima(x,order=c(max.p>0,d,0),seasonal=c((m>1)&(max.P>0),D,0),constant=constant,ic,trace)
+        results[3,] <- c(1,d,0,m>1,D,0,constant,fit$ic)
+        if(fit$ic < bestfit$ic)
+        {
+            bestfit <- fit
+            p <- (max.p>0)
+            P <- (m>1) & (max.P>0)
+            q <- Q <- 0
+        }
     }
     # Basic MA model
-    fit <- myarima(x,order=c(0,d,1),seasonal=c(0,D,m>1),constant=constant,ic,trace)
-    results[4,] <- c(0,d,1,0,D,m>1,constant,fit$ic)
-    if(fit$ic < bestfit$ic)
+    if(max.q > 0 | max.Q > 0)
     {
-        bestfit <- fit
-        p <- P <- 0
-        Q <- m>1
-        q <- 1
+        fit <- myarima(x,order=c(0,d,max.q>0),seasonal=c(0,D,(m>1)&(max.Q>0)),constant=constant,ic,trace)
+        results[4,] <- c(0,d,1,0,D,m>1,constant,fit$ic)
+        if(fit$ic < bestfit$ic)
+        {
+            bestfit <- fit
+            p <- P <- 0
+            Q <- (m>1) & (max.Q>0)
+            q <- (max.q>0)
+        }
     }
 
     startk <- 0
@@ -291,9 +299,19 @@ myarima <- function(x, order = c(0, 0, 0), seasonal = c(0, 0, 0), constant=TRUE,
         # Check for unit roots
         minroot <- 2
         if(order[1] + seasonal[1] > 0)
-            minroot <- min(minroot,abs(polyroot(c(1,-fit$model$phi))))
+        {
+            if(length(fit$model$phi) > 48)
+                warning("Unable to check for unit roots")
+            else
+                minroot <- min(minroot,abs(polyroot(c(1,-fit$model$phi))))
+        }
         if(order[3] + seasonal[3] > 0)
-            minroot <- min(minroot,abs(polyroot(c(1,fit$model$theta))))
+        {
+            if(length(fit$model$theta) > 48)
+                warning("Unable to check for unit roots")
+            else
+                minroot <- min(minroot,abs(polyroot(c(1,fit$model$theta))))
+        }
         if(minroot < 1 + 1e-3)
             fit$ic <- 1e20 # Don't like this model
         if(trace)

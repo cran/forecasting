@@ -8,6 +8,9 @@ ets <- function(y, model="ZZZ", damped=NULL,
     bounds <- match.arg(bounds)
     ic <- match.arg(ic)
 
+    if(class(y)=="data.frame" | class(y)=="list" | class(y)=="matrix")
+        stop("y should be a vector")
+
     if(nmse < 1 | nmse > 10)
         stop("nmse out of range")
     m <- frequency(y)
@@ -161,8 +164,8 @@ etsmodel <- function(y, errortype, trendtype, seasontype, damped,
         tsp.y <- c(1,length(y),1)
     m <- tsp.y[3]
 
-    if(errortype=="M" | trendtype=="M" | seasontype=="M")
-        bounds="usual"
+#    if(errortype=="M" | trendtype=="M" | seasontype=="M")
+#        bounds="usual"
     if(!check.param(alpha,beta,gamma,phi,lower,upper,bounds,m))
     {
         print(paste("Model: ETS(",errortype,",",trendtype,ifelse(damped,"d",""),",",seasontype,")",sep=""))
@@ -250,8 +253,8 @@ initparam <- function(alpha,beta,gamma,phi,trendtype,seasontype,damped,lower,upp
             alpha <- beta+0.001
         else if(is.null(beta))
             alpha <- 0.999-gamma
-        else
-            alpha <- 0.1*(beta+1.001-gamma)
+        else 
+            alpha <- 0.5*(beta - gamma + 1)
         if(alpha < lower[1] | alpha > upper[1])
             stop("Inconsistent parameter limits")
         par <- alpha
@@ -561,7 +564,7 @@ admissible <- function(alpha,beta,gamma,phi,m)
         # End of easy tests. Now use characteristic equation
         P <- c(phi*(1-alpha-gamma),alpha+beta-alpha*phi+gamma-1,rep(alpha+beta-alpha*phi,m-2),(alpha+beta-phi),1)
         roots <- polyroot(P)
-        if(max(abs(roots)) > 1)
+        if(max(abs(roots)) > 1+1e-10)
             return(0)
     }
     # Passed all tests

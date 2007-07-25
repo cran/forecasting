@@ -25,8 +25,10 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
 
     if(m>1)
     {
-        max.p <- min(max.p, m-1)
-        max.q <- min(max.q, m-1)
+        if(max.P > 0)
+            max.p <- min(max.p, m-1)
+        if(max.Q > 0)
+            max.q <- min(max.q, m-1)
     }
 
 
@@ -65,7 +67,7 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     }
     bestfit$series <- deparse(substitute(x))
     bestfit$ic=NULL
-    
+
     if(trace)
         cat("\n\n")
 

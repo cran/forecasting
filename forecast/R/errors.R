@@ -30,8 +30,9 @@ forecasterrors <- function(f,x,test=1:length(x))
 
 gof <- function(object)
 {
-    res <- residuals(object)
-    pe <- res/object$x
+    res <- object$x-object$fitted
+    # Don't use object$resid as this may contain multiplicative errors.
+    pe <- res/object$x * 100 # Percentage error
     scale <- mean(abs(diff(object$x)),na.rm=TRUE)
     out <- c(mean(res,na.rm=TRUE), sqrt(mean(res^2,na.rm=TRUE)), mean(abs(res),na.rm=TRUE), mean(pe,na.rm=TRUE), mean(abs(pe),na.rm=TRUE),
         mean(abs(res/scale),na.rm=TRUE))

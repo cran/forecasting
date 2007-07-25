@@ -9,10 +9,20 @@
 \item{x}{Vector of actual values of the same length as f.}
 \item{test}{Indicator of which elements of x and f to test.}
 }
-\description{Returns range of summary measures of the error x-f.}
-
-\value{Vector giving forecast error measures.
+\description{Returns range of summary measures of the error x-f. These are
+(usually) out-of-sample forecast errors. Compare \code{\link{gof}} which provides a 
+summary of in-sample forecast errors.
+All measures are defined and discussed in Hyndman and Koehler (2006).}
 }
+
+\value{Vector giving forecast error measures.}
+}
+
+\seealso{\code{\link{gof}}}
+
+\references{Hyndman, R.J. and Koehler, A.B. (2006) "Another look at measures of forecast accuracy". \emph{International Journal of Forecasting},
+\bold{22}(4).}
+
 
 \author{Rob J Hyndman}
 \examples{

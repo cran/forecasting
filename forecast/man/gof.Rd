@@ -8,7 +8,10 @@
 \item{object}{An object of class \code{"forecast"}}
 }
 
-\description{Returns range of summary measures of the in-sample errors. All measures are defined and discussed in Hyndman and Koehler (2006).}
+\description{Returns range of summary measures of the in-sample errors. 
+Compare \code{\link{forecasterrors}} which provides a 
+summary of out-of-sample forecast errors.
+All measures are defined and discussed in Hyndman and Koehler (2006).}
 
 \value{Vector giving in-sample error measures.
 }
