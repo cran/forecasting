@@ -1,5 +1,5 @@
 # Mean forecast
-meanf <- function(x,h=10,conf=c(80,95),fan=FALSE)
+meanf <- function(x,h=10,level=c(80,95),fan=FALSE)
 {
     xname <- deparse(substitute(x))
     n <- length(x)
@@ -8,20 +8,20 @@ meanf <- function(x,h=10,conf=c(80,95),fan=FALSE)
     start.x <- tsp(x)[1]
     f=ts(rep(mean(x),h),start=start.x,f=frequency(x))
     if(fan)
-        conf <- seq(50,99,by=1)
+        level <- seq(51,99,by=3)
     else
     {
-        if(min(conf) > 0 & max(conf) < 1)
-            conf <- 100*conf
-        else if(min(conf) < 0 | max(conf) > 99.99)
+        if(min(level) > 0 & max(level) < 1)
+            level <- 100*level
+        else if(min(level) < 0 | max(level) > 99.99)
             stop("Confidence limit out of range")
     }
-    nconf <- length(conf)
+    nconf <- length(level)
     lower <- upper <- matrix(NA,nrow=h,ncol=nconf)
     s <- sd(x)
     for(i in 1:nconf)
     {
-        tfrac <- qt( 0.5 - conf[i]/200, n-1)
+        tfrac <- qt( 0.5 - level[i]/200, n-1)
         w <- -tfrac * s*sqrt(1+1/n)
         lower[,i] = f-w
         upper[,i] = f+w
@@ -29,13 +29,13 @@ meanf <- function(x,h=10,conf=c(80,95),fan=FALSE)
     freq=frequency(x)
     lower <- ts(lower,start=tsp(x)[2]+1/freq,f=freq)
     upper <- ts(upper,start=tsp(x)[2]+1/freq,f=freq)
-    colnames(lower) <- colnames(upper) <- paste(conf,"%",sep="")
+    colnames(lower) <- colnames(upper) <- paste(level,"%",sep="")
     fits <- rep(NA,n-1)
     for(i in 1:(n-1))
         fits[i] <- mean(x[1:i])
     res <- x[2:n] - fits
 
-    junk <- list(method="Mean",conf=conf,x=x,xname=xname,mean=ts(f,start=tsp(x)[2]+1/freq,f=freq),lower=lower,upper=upper,
+    junk <- list(method="Mean",level=level,x=x,xname=xname,mean=ts(f,start=tsp(x)[2]+1/freq,f=freq),lower=lower,upper=upper,
         model=list(mu=f[1],mu.se=s/sqrt(length(x)),sd=s,residuals=ts(c(x-f[1]),start=start.x,f=freq)),
         fitted =ts(fits,start=start.x+1/freq,f=freq), residuals=ts(res,start=start.x+1/freq,f=freq))
     junk$model$call <- match.call()
@@ -43,15 +43,15 @@ meanf <- function(x,h=10,conf=c(80,95),fan=FALSE)
     return(structure(junk,class="forecast"))
 }
 
-thetaf <- function(x,h=10,conf=c(80,95),fan=FALSE)
+thetaf <- function(x,h=10,level=c(80,95),fan=FALSE)
 {
     if(fan)
-        conf <- seq(50,99,by=1)
+        level <- seq(51,99,by=3)
     else
     {
-        if(min(conf) > 0 & max(conf) < 1)
-            conf <- 100*conf
-        else if(min(conf) < 0 | max(conf) > 99.99)
+        if(min(level) > 0 & max(level) < 1)
+            level <- 100*level
+        else if(min(level) < 0 | max(level) > 99.99)
             stop("Confidence limit out of range")
     }
     fcast <- ses(x,h=h)
@@ -60,15 +60,15 @@ thetaf <- function(x,h=10,conf=c(80,95),fan=FALSE)
     n <- length(x)
     fcast$mean <- fcast$mean + tmp2*(0:(h-1) + (1-(1-alpha)^n)/alpha)
     fcast.se <- sqrt(fcast$model$sigma) * sqrt((0:(h-1))*alpha^2+1)
-    nconf <- length(conf)
+    nconf <- length(level)
     fcast$lower <- fcast$upper <- matrix(NA,nrow=h,ncol=nconf)
     for(i in 1:nconf)
     {
-        zt <- -qnorm( 0.5 - conf[i]/200)
+        zt <- -qnorm( 0.5 - level[i]/200)
         fcast$lower[,i] <- fcast$mean - zt*fcast.se
         fcast$upper[,i] <- fcast$mean + zt*fcast.se
     }
-    fcast$conf <- conf
+    fcast$level <- level
     fcast$method <- "Theta"
     fcast$model <- list(alpha=alpha,drift=tmp2,sigma=fcast$model$sigma)
     fcast$model$call <- match.call()
@@ -76,7 +76,7 @@ thetaf <- function(x,h=10,conf=c(80,95),fan=FALSE)
 }
 
 # Random walk
-rwf <- function(x,h=10,drift=FALSE,conf=c(80,95),fan=FALSE)
+rwf <- function(x,h=10,drift=FALSE,level=c(80,95),fan=FALSE)
 {
     xname <- deparse(substitute(x))
     n <- length(x)
@@ -103,16 +103,16 @@ rwf <- function(x,h=10,drift=FALSE,conf=c(80,95),fan=FALSE)
     se <- sqrt((nn*s^2) + (nn*b.se)^2)
 
     if(fan)
-        conf <- seq(50,99,by=1)
+        level <- seq(51,99,by=3)
     else
     {
-        if(min(conf) > 0 & max(conf) < 1)
-            conf <- 100*conf
-        else if(min(conf) < 0 | max(conf) > 99.99)
+        if(min(level) > 0 & max(level) < 1)
+            level <- 100*level
+        else if(min(level) < 0 | max(level) > 99.99)
             stop("Confidence limit out of range")
     }
-    nconf <- length(conf)
-    z <- qnorm(.5 + conf/200)
+    nconf <- length(level)
+    z <- qnorm(.5 + level/200)
     lower <- upper <- matrix(NA,nrow=h,ncol=nconf)
     for(i in 1:nconf)
     {
@@ -122,8 +122,8 @@ rwf <- function(x,h=10,drift=FALSE,conf=c(80,95),fan=FALSE)
     freq=frequency(x)
     lower <- ts(lower,start=tsp(x)[2]+1/freq,f=freq)
     upper <- ts(upper,start=tsp(x)[2]+1/freq,f=freq)
-    colnames(lower) <- colnames(upper) <- paste(conf,"%",sep="")
-    junk <- list(method=method,conf=conf,x=x,xname=xname,mean=ts(f,start=tsp(x)[2]+1/freq,f=freq),lower=lower,upper=upper,
+    colnames(lower) <- colnames(upper) <- paste(level,"%",sep="")
+    junk <- list(method=method,level=level,x=x,xname=xname,mean=ts(f,start=tsp(x)[2]+1/freq,f=freq),lower=lower,upper=upper,
         model=list(drift=b,drift.se=b.se,sd=s,residuals=ts(c(x-f[1]),start=tsp(x)[1],f=freq)),
         fitted = ts(x[-n],start=tsp(x)[1]+1/freq,f=freq),
         residuals = diff(x))
@@ -148,68 +148,68 @@ InvBoxCox <- function(x,lambda)
         (x*lambda + 1)^(1/lambda)
 }
 
-forecast.StructTS <- function(object,h=ifelse(object$call$type=="BSM", 2*object$xtsp[3], 10),conf=c(80,95),fan=FALSE,...)
+forecast.StructTS <- function(object,h=ifelse(object$call$type=="BSM", 2*object$xtsp[3], 10),level=c(80,95),fan=FALSE,...)
 {
     xname <- deparse(substitute(x))
     x <- object$data
     pred <- predict(object,n.ahead=h)
     if(fan)
-        conf <- seq(50,99,by=1)
+        level <- seq(51,99,by=3)
     else
     {
-        if(min(conf) > 0 & max(conf) < 1)
-            conf <- 100*conf
-        else if(min(conf) < 0 | max(conf) > 99.99)
+        if(min(level) > 0 & max(level) < 1)
+            level <- 100*level
+        else if(min(level) < 0 | max(level) > 99.99)
             stop("Confidence limit out of range")
     }
-    nint <- length(conf)
+    nint <- length(level)
     lower <- matrix(NA,ncol=nint,nrow=length(pred$pred))
     upper <- lower
     for(i in 1:nint)
     {
-        qq <- qnorm(0.5*(1+conf[i]/100))
+        qq <- qnorm(0.5*(1+level[i]/100))
         lower[,i] <- pred$pred - qq*pred$se
         upper[,i] <- pred$pred + qq*pred$se
     }
-    colnames(lower) = colnames(upper) = paste(conf,"%",sep="")
+    colnames(lower) = colnames(upper) = paste(level,"%",sep="")
     if(object$call$type=="BSM")
         method <- "Basic structural model"
     else if(object$call$type=="level")
         method <- "Local level structural model"
     else if(object$call$type=="trend")
         method <- "Local linear structural model"
-    return(structure(list(method=method,model=object,conf=conf,mean=pred$pred,lower=lower,upper=upper,
+    return(structure(list(method=method,model=object,level=level,mean=pred$pred,lower=lower,upper=upper,
         x=x,xname=xname,fitted=x-residuals(object),residuals=residuals(object)),
         class="forecast"))
 }
 
-forecast.HoltWinters <- function(object,h=ifelse(frequency(object$x)>1,2*frequency(object$x),10),conf=c(80,95),fan=FALSE,...)
+forecast.HoltWinters <- function(object,h=ifelse(frequency(object$x)>1,2*frequency(object$x),10),level=c(80,95),fan=FALSE,...)
 {
     xname <- deparse(substitute(x))
     x <- object$x
-    pred <- predict(object,n.ahead=h,prediction.interval=TRUE,level=conf[1]/100)
+    pred <- predict(object,n.ahead=h,prediction.interval=TRUE,level=level[1]/100)
     pmean <- pred[,1]
     if(fan)
-        conf <- seq(50,99,by=1)
+        level <- seq(51,99,by=3)
     else
     {
-        if(min(conf) > 0 & max(conf) < 1)
-            conf <- 100*conf
-        else if(min(conf) < 0 | max(conf) > 99.99)
+        if(min(level) > 0 & max(level) < 1)
+            level <- 100*level
+        else if(min(level) < 0 | max(level) > 99.99)
             stop("Confidence limit out of range")
     }
-    nint <- length(conf)
+    nint <- length(level)
     upper <- lower <- matrix(NA,ncol=nint,nrow=length(pred[,1]))
-    se <- (pred[,3]-pred[,2])/(2*qnorm(0.5*(1+conf[1]/100)))
+    se <- (pred[,3]-pred[,2])/(2*qnorm(0.5*(1+level[1]/100)))
     for(i in 1:nint)
     {
-        qq <- qnorm(0.5*(1+conf[i]/100))
+        qq <- qnorm(0.5*(1+level[i]/100))
         lower[,i] <- pmean - qq*se
         upper[,i] <- pmean + qq*se
     }
-    colnames(lower) = colnames(upper) = paste(conf,"%",sep="")
+    colnames(lower) = colnames(upper) = paste(level,"%",sep="")
     method <- "HoltWinters"
-    return(structure(list(method=method, model=object, conf=conf,
+    return(structure(list(method=method, model=object, level=level,
         mean=pmean, lower=lower, upper=upper,
         x=x, xname=xname, fitted=object$fitted, residuals=residuals(object)),
         class="forecast"))
@@ -258,4 +258,3 @@ croston2 <- function(x,h=10,alpha=0.1,nofits=FALSE)
         return(list(mean = y.f$mean/p.f$mean, fitted = junk, model=list(demand=y.f,period=p.f)))
     }
 }
-

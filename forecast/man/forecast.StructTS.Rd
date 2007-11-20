@@ -2,14 +2,14 @@
 \alias{forecast.StructTS}
 \title{Forecasting using Structural Time Series models}
 \usage{\method{forecast}{StructTS}(object, h=ifelse(object$call$type=="BSM",2*object$xtsp[3],10),
-	conf=c(80,95), fan=FALSE, ...)
+	level=c(80,95), fan=FALSE, ...)
 }
 
 \arguments{
 \item{object}{An object of class "\code{StructTS}". Usually the result of a call to \code{\link[stats]{StructTS}}.}
 \item{h}{Number of periods for forecasting}
-\item{conf}{Confidence level for prediction intervals.}
-\item{fan}{If TRUE, conf is set to seq(50,99,by=1). This is suitable for fan plots.}
+\item{level}{Confidence level for prediction intervals.}
+\item{fan}{If TRUE, level is set to seq(50,99,by=1). This is suitable for fan plots.}
 \item{...}{Other arguments.}
 }
 
@@ -34,7 +34,7 @@ An object of class \code{"forecast"} is a list containing at least the following
 \item{mean}{Point forecasts as a time series}
 \item{lower}{Lower limits for prediction intervals}
 \item{upper}{Upper limits for prediction intervals}
-\item{conf}{The confidence values associated with the prediction intervals}
+\item{level}{The confidence values associated with the prediction intervals}
 \item{x}{The original time series (either \code{object} itself or the time series used to create the model stored as \code{object}).}
 \item{residuals}{Residuals from the fitted model. That is x minus fitted values.}
 \item{fitted}{Fitted values (one-step forecasts)}

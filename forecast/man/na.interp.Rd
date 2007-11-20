@@ -8,10 +8,12 @@
 }
 \description{Uses linear interpolation to replace missing values.}
 
-\details{}
+\details{A more general and flexible approach is available using \code{\link[zoo]{na.approx}}.}
 
 \value{Time series}
-}
+
+\seealso{\code{\link[zoo]{na.approx}}}
+
 
 \author{Rob J Hyndman}
 \examples{

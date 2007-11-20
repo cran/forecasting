@@ -2,7 +2,7 @@
 \alias{simulate.ets}
 \title{Simulation from an ETS model}
 \usage{
-simulate.ets(object, nsim=length(object$x), seed=NULL, initstate=object$state[1,], bootstrap=TRUE, ...)
+\method{simulate}{ets}(object, nsim=length(object$x), seed=NULL, initstate=object$state[1,], bootstrap=TRUE, ...)
 }
 
 \arguments{

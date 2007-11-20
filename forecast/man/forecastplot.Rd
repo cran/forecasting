@@ -5,8 +5,8 @@
 
 \usage{
 \method{plot}{forecast}(x, include, plot.conf = TRUE, shaded = TRUE, shadecols
-				 = switch(1 + (length(x$conf) > 1), 7, length(x$conf):1),
-                shadepalette=heat.colors(length(x$conf)+1)[-1], lambda = NULL,
+				 = switch(1 + (length(x$level) > 1), 7, length(x$level):1),
+                shadepalette=heat.colors(length(x$level)+2)[-1], lambda = NULL,
 				 col = 1, fcol = 4, ylim = NULL, main = NULL, ylab = "", xlab = "", ...)
 \method{plot}{splineforecast}(x,fitcol=2,...)
 }
@@ -28,11 +28,11 @@ backtransforms data and forecasts using \code{\link{InvBoxCox}}.}
 \item{fitcol}{Line colour for fitted values.}
 \item{\dots}{additional arguments to \code{\link[base]{plot}}.} }
 \description{Plots a time series with forecasts and prediction intervals.}
-}
+
 \value{None.
 }
 \references{Makridakis, Wheelwright and Hyndman (1998) \emph{Forecasting:
-methods and applications}, Wiley: New York.
+methods and applications}, Wiley: New York. \url{http://www.robhyndman.info/forecasting}.
 }
 \author{Rob J Hyndman}
 \seealso{\code{\link[stats]{plot.ts}}}

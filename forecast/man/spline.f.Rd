@@ -1,13 +1,13 @@
 \name{splinef}
 \alias{splinef}
 \title{Cubic Spline Forecast}
-\usage{splinef(x, h=10, conf=c(80,95), fan=FALSE)}
+\usage{splinef(x, h=10, level=c(80,95), fan=FALSE)}
 
 \arguments{
 \item{x}{a numeric vector or time series}
 \item{h}{Number of periods for forecasting}
-\item{conf}{Confidence level for prediction intervals.}
-\item{fan}{If TRUE, conf is set to seq(50,99,by=1). This is suitable for fan plots.}
+\item{level}{Confidence level for prediction intervals.}
+\item{fan}{If TRUE, level is set to seq(50,99,by=1). This is suitable for fan plots.}
 }
 
 \description{Returns local linear forecasts and prediction
@@ -36,15 +36,15 @@ An object of class \code{"forecast"} is a list containing at least the following
 \item{mean}{Point forecasts as a time series}
 \item{lower}{Lower limits for prediction intervals}
 \item{upper}{Upper limits for prediction intervals}
-\item{conf}{The confidence values associated with the prediction intervals}
+\item{level}{The confidence values associated with the prediction intervals}
 \item{x}{The original time series (either \code{object} itself or the time series used to create the model stored as \code{object}).}
 \item{residuals}{Residuals from the fitted model. That is x minus fitted values.}
 \item{fitted}{Fitted values (one-step forecasts)}
 }
 
-\references{Hyndman, King, Pitrun and Billah (2002) Local linear forecasts using cubic smoothing
-splines. Working paper available at
-\url{http://www-personal.buseco.monash.edu.au/~hyndman/papers/splinefcast.htm}.}
+\references{Hyndman, King, Pitrun and Billah (2005) Local linear forecasts using cubic smoothing
+splines. \emph{Australian and New Zealand Journal of Statistics}, \bold{47}(1), 87-99.
+\url{http://www.robhyndman.info/papers/splinefcast.htm}.}
 
 \seealso{\code{\link[base]{smooth.spline}},
 \code{\link[stats]{arima}}, \code{\link{holt}}.}

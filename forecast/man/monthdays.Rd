@@ -11,7 +11,7 @@
 \details{Useful for month length adjustments}
 
 \value{Time series}
-}
+
 
 \author{Rob J Hyndman}
 \examples{

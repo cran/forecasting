@@ -1,30 +1,30 @@
 ## Generic forecast functions
 ## Part of forecast and demography packages
 
-forecast <- function(...) UseMethod("forecast")
+forecast <- function(object,...) UseMethod("forecast")
 
-forecast.default <- function(...) forecast.ts(...)
+forecast.default <- function(object,...) forecast.ts(object,...)
 
-forecast.ts <- function(x, h=ifelse(frequency(x)>1, 2*frequency(x), 10), conf=c(80,95), fan=FALSE, ...)
+forecast.ts <- function(object, h=ifelse(frequency(object)>1, 2*frequency(object), 10), level=c(80,95), fan=FALSE, ...)
 {
-    forecast(ets(x,...),h=h,conf=conf,fan=fan)
+    forecast(ets(object,...),h=h,level=level,fan=fan)
 }
 
 print.forecast <- function(x,...)
 {
 #    cat(paste("Call:\n",deparse(x$call),"\n\n"))
-    nconf <- length(x$conf)
+    nconf <- length(x$level)
     out <- ts(matrix(x$mean,ncol=1))
     attributes(out)$tsp <- attributes(x$mean)$tsp
     names <- c("Point Forecast")
-    if(!is.null(x$lower) & !is.null(x$upper) & !is.null(x$conf))
+    if(!is.null(x$lower) & !is.null(x$upper) & !is.null(x$level))
     {
         x$upper <- as.matrix(x$upper)
         x$lower <- as.matrix(x$lower)
         for(i in 1:nconf)
         {
             out <- cbind(out,x$lower[,i],x$upper[,i])
-            names <- c(names,paste("Lo",x$conf[i]),paste("Hi",x$conf[i]))
+            names <- c(names,paste("Lo",x$level[i]),paste("Hi",x$level[i]))
         }
     }
     colnames(out) <- names
@@ -43,7 +43,7 @@ summary.forecast <- function(object,...)
     cat(paste("\n\nModel Information:\n"))
     print(object$model)
     cat("\nIn-sample error measures:\n")
-    print(gof(object))
+    print(accuracy(object))
     if(is.null(object$mean))
         cat("\n No forecasts\n")
     else
@@ -54,8 +54,8 @@ summary.forecast <- function(object,...)
 }
 
 plot.forecast <- function(x, include, plot.conf=TRUE, shaded=TRUE,
-        shadecols=switch(1+(length(x$conf)>1),7,length(x$conf):1),
-        shadepalette=heat.colors(length(x$conf)+1)[-1],
+        shadecols=switch(1+(length(x$level)>1),7,length(x$level):1),
+        shadepalette=heat.colors(length(x$level)+2)[-1],
         lambda=NULL, col=1,fcol=4, ylim=NULL, main=NULL, ylab="",xlab="",...)
 {
     if(is.element("x",names(x))) # Assume stored as x
@@ -69,7 +69,7 @@ plot.forecast <- function(x, include, plot.conf=TRUE, shaded=TRUE,
     if(missing(include))
         include <- length(data)
 
-    if(is.null(x$lower) | is.null(x$upper) | is.null(x$conf))
+    if(is.null(x$lower) | is.null(x$upper) | is.null(x$level))
         plot.conf=FALSE
 
     # Extract components of predict if it exists
@@ -116,10 +116,11 @@ plot.forecast <- function(x, include, plot.conf=TRUE, shaded=TRUE,
     xxx <- tsp(xx)[2] + (1:npred)/freq
     if(plot.conf)
     {
-        idx <- rev(order(x$conf))
-        nint <- length(x$conf)
+        idx <- rev(order(x$level))
+        nint <- length(x$level)
         if(shaded)
         {
+            ns <- length(shadepalette)
             if(nint>1)
                 palette(shadepalette)
         }
@@ -142,4 +143,9 @@ plot.forecast <- function(x, include, plot.conf=TRUE, shaded=TRUE,
         invisible(list(mean=pred.mean,lower=lower,upper=upper))
     else
         invisible(list(mean=pred.mean))
+}
+
+predict.default <- function(object, ...)
+{
+    forecast(object, ...)
 }

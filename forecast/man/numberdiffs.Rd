@@ -19,5 +19,5 @@
 \author{Rob J Hyndman}
 
 \examples{ndiffs(WWWusage)}
-}
+
 \keyword{ts}

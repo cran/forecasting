@@ -61,10 +61,7 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     if(exists("bestfit"))
         bestfit$x <- x
     else
-    {
-        options(show.error.messages=olderror,warn=oldwarn)
         stop("No ARIMA model able to be estimated")
-    }
     bestfit$series <- deparse(substitute(x))
     bestfit$ic=NULL
 
@@ -187,7 +184,7 @@ nsdiffs <- function(x, m=frequency(x))
 
 
 forecast.Arima <- function (object, h = ifelse(object$arma[5] > 1, 2 * object$arma[5], 10),
-    conf = c(80, 95), fan=FALSE, xreg = NULL,...)
+    level = c(80, 95), fan=FALSE, xreg = NULL,...)
 {
 #    use.constant <- is.element("constant",names(object$coef))
     use.drift <- is.element("drift", names(object$coef))
@@ -212,62 +209,62 @@ forecast.Arima <- function (object, h = ifelse(object$arma[5] > 1, 2 * object$ar
         pred <- predict(object, n.ahead = h)
 
     if(fan)
-        conf <- seq(50,99,by=1)
+        level <- seq(51,99,by=3)
     else
     {
-        if(min(conf) > 0 & max(conf) < 1)
-            conf <- 100*conf
-        else if(min(conf) < 0 | max(conf) > 99.99)
+        if(min(level) > 0 & max(level) < 1)
+            level <- 100*level
+        else if(min(level) < 0 | max(level) > 99.99)
             stop("Confidence limit out of range")
     }
 
-    nint <- length(conf)
+    nint <- length(level)
     lower <- matrix(NA, ncol = nint, nrow = length(pred$pred))
     upper <- lower
     for (i in 1:nint)
     {
-        qq <- qnorm(0.5 * (1 + conf[i]/100))
+        qq <- qnorm(0.5 * (1 + level[i]/100))
         lower[, i] <- pred$pred - qq * pred$se
         upper[, i] <- pred$pred + qq * pred$se
     }
-    colnames(lower) = colnames(upper) = paste(conf, "%", sep = "")
+    colnames(lower) = colnames(upper) = paste(level, "%", sep = "")
     method <- arima.string(object)
-    return(structure(list(method = method, model = object, conf = conf,
+    return(structure(list(method = method, model = object, level = level,
         mean = pred$pred, lower = lower, upper = upper, x = x,
         xname = deparse(substitute(x)), fitted = fitted(object), residuals = residuals(object)),
         class = "forecast"))
 }
 
 
-forecast.ar <- function(object,h=10,conf=c(80,95),fan=FALSE,...)
+forecast.ar <- function(object,h=10,level=c(80,95),fan=FALSE,...)
 {
     pred <- predict(object,n.ahead=h)
     if(fan)
-        conf <- seq(50,99,by=1)
+        level <- seq(51,99,by=3)
     else
     {
-        if(min(conf) > 0 & max(conf) < 1)
-            conf <- 100*conf
-        else if(min(conf) < 0 | max(conf) > 99.99)
+        if(min(level) > 0 & max(level) < 1)
+            level <- 100*level
+        else if(min(level) < 0 | max(level) > 99.99)
             stop("Confidence limit out of range")
     }
-    nint <- length(conf)
+    nint <- length(level)
     lower <- matrix(NA,ncol=nint,nrow=length(pred$pred))
     upper <- lower
     for(i in 1:nint)
     {
-        qq <- qnorm(0.5*(1+conf[i]/100))
+        qq <- qnorm(0.5*(1+level[i]/100))
         lower[,i] <- pred$pred - qq*pred$se
         upper[,i] <- pred$pred + qq*pred$se
     }
-    colnames(lower) = colnames(upper) = paste(conf,"%",sep="")
+    colnames(lower) = colnames(upper) = paste(level,"%",sep="")
     method <- paste("AR(",object$order,")",sep="")
     x <- as.ts(eval(parse(text=object$series)))
     f=frequency(x)
     res <- ts(object$resid[-(1:object$order)],start=tsp(x)[1]+object$order/f,f=f)
     fits <- x-res
 
-    return(structure(list(method=method,model=object,conf=conf,mean=pred$pred,lower=lower,upper=upper,
+    return(structure(list(method=method,model=object,level=level,mean=pred$pred,lower=lower,upper=upper,
         x=x, xname = deparse(substitute(x)), fitted=fits,residuals=res)
         ,class="forecast"))
 }
@@ -310,7 +307,7 @@ fitted.Arima <- function(object,...)
 # Calls arima from stats package and adds data to the returned object
 # Also allows refitting to new data
 # and drift terms to be included.
-arima <- function(x, order = c(0, 0, 0),
+Arima <- function(x, order = c(0, 0, 0),
       seasonal = list(order = c(0, 0, 0), period = NA),
       xreg = NULL, include.mean = TRUE, include.drift = FALSE, transform.pars = TRUE,
       fixed = NULL, init = NULL, method = c("CSS-ML", "ML", "CSS"),
@@ -347,21 +344,21 @@ arima2 <- function (x, model)
     if(model$arma[5]>1 & sum(abs(model$arma[c(3,4,7)]))>0) # Seasonal model
     {
         if(use.drift)
-            refit <- arima(x,order=model$arma[c(1,6,2)],seasonal=list(order=model$arma[c(3,7,4)],period=model$arma[5]),
+            refit <- Arima(x,order=model$arma[c(1,6,2)],seasonal=list(order=model$arma[c(3,7,4)],period=model$arma[5]),
                 fixed=model$coef,include.mean=use.intercept,xreg=xreg)
         else
-            refit <- arima(x,order=model$arma[c(1,6,2)],seasonal=list(order=model$arma[c(3,7,4)],period=model$arma[5]),
+            refit <- Arima(x,order=model$arma[c(1,6,2)],seasonal=list(order=model$arma[c(3,7,4)],period=model$arma[5]),
                 fixed=model$coef,include.mean=use.intercept)
     }
     else if(length(model$coef)>0) # Nonseasonal model with some parameters
     {
         if(use.drift)
-           refit <- arima(x,order=model$arma[c(1,6,2)],fixed=model$coef,xreg=xreg,include.mean=use.intercept)
+           refit <- Arima(x,order=model$arma[c(1,6,2)],fixed=model$coef,xreg=xreg,include.mean=use.intercept)
         else
-            refit <- arima(x,order=model$arma[c(1,6,2)],fixed=model$coef,include.mean=use.intercept)
+            refit <- Arima(x,order=model$arma[c(1,6,2)],fixed=model$coef,include.mean=use.intercept)
     }
     else # No parameters
-        refit <- arima(x,order=model$arma[c(1,6,2)],include.mean=FALSE)
+        refit <- Arima(x,order=model$arma[c(1,6,2)],include.mean=FALSE)
     refit$var.coef <- matrix(0,length(refit$coef),length(refit$coef))
     return(refit)
 }
@@ -369,6 +366,9 @@ arima2 <- function (x, model)
 print.Arima <- function (x, digits = max(3, getOption("digits") - 3), se = TRUE,
     ...)
 {
+    if (!is.element("x", names(x)))
+        x$x <- eval(parse(text = x$series))
+
     cat("Series:",x$series,"\n")
     cat(arima.string(x),"\n")
     if(!is.null(x$call$xreg))

@@ -1,6 +1,6 @@
 \name{ets}
 \alias{ets}
-\alias{print.ets}
+
 \title{Exponential smoothing state space model}
 \usage{
 ets(y, model="ZZZ", damped=NULL, alpha=NULL, beta=NULL, gamma=NULL, phi=NULL,
@@ -55,7 +55,7 @@ M3-competition data. (See Hyndman, et al, 2002, below.)
 
 The generic accessor functions \code{fitted.values} and \code{residuals} extract useful features of
 the value returned by \code{ets} and associated functions.}
-}
+
 
 
 \references{Hyndman, R.J., Koehler, A.B., Snyder,

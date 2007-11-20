@@ -1,4 +1,4 @@
-\name{best.arima}
+\name{auto.arima}
 \alias{best.arima}
 \alias{auto.arima}
 \title{Fit best ARIMA model to univariate time series}
@@ -7,7 +7,8 @@ auto.arima(x, d = NA, D = NA, max.p = 5, max.q = 5,
             max.P = 2, max.Q = 2, max.order = 5,
             start.p=2, start.q=2, start.P=1, start.Q=1,
 			stationary = FALSE, ic = c("aic","aicc", "bic"), 
-            stepwise=TRUE, trace=FALSE)
+            stepwise=TRUE, trace=FALSE, 
+            approximation=length(x)>100 | frequency(x)>12)
 }
 
 \arguments{
@@ -29,11 +30,16 @@ auto.arima(x, d = NA, D = NA, max.p = 5, max.q = 5,
                 it searches over all models. Non-stepwise selection can be very slow,
                 especially for seasonal models.}
 \item{trace}{If \code{TRUE}, the list of ARIMA models considered will be reported.}
+\item{approximation}{If \code{TRUE}, estimation is via conditional sums of squares and
+    the information criteria used for model selection are approximated. The final model is 
+    still computed using maximum likelihood estimation. Approximation should be used
+    for long time series or a high seasonal period to avoid excessive computation
+    times.}
 }
 \description{Returns best ARIMA model according to either AIC, AICc or BIC value.
 The function conducts a search over
 possible model within the order constraints provided.}
-}
+
 \details{Non-stepwise selection can be slow, especially for seasonal data.
 Non-seasonal differences chosen using \code{\link[tseries]{kpss.test}}.
 Seasonal differences chosen using a variation on the Canova-Hansen test. Stepwise algorithm

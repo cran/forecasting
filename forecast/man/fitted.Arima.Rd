@@ -17,7 +17,7 @@
 
 \author{Rob J Hyndman}
 
-\examples{fit <- arima(WWWusage,c(3,1,0))
+\examples{fit <- Arima(WWWusage,c(3,1,0))
 plot(WWWusage)
 lines(fitted(fit),col=2)
 }

@@ -18,14 +18,14 @@ The function \code{\link{forecast.ts}} makes forecasts using exponential smoothi
 
 \details{The default behaviour is to use a model estimated using \code{\link{ets}}.}
 
-\usage{forecast(...)
-\method{forecast}{ts}(x, h, conf=c(80,95), fan=FALSE, ...)}
+\usage{forecast(object,...)
+\method{forecast}{ts}(object, h, level=c(80,95), fan=FALSE, ...)}
 
 \arguments{
-\item{x}{a time series or time series model for which forecasts are required}
+\item{object}{a time series or time series model for which forecasts are required}
 \item{h}{Number of periods for forecasting}
-\item{conf}{Confidence level for prediction intervals.}
-\item{fan}{If TRUE, conf is set to seq(50,99,by=1). This is suitable for fan plots.}
+\item{level}{Confidence level for prediction intervals.}
+\item{fan}{If TRUE, level is set to seq(50,99,by=1). This is suitable for fan plots.}
 \item{...}{Additional arguments affecting the forecasts produced. \code{forecast.ts} passes these to \code{\link{forecast.ets}}}
 }
 \value{An object of class "\code{forecast}".
@@ -43,7 +43,7 @@ An object of class \code{"forecast"} is a list containing at least the following
 \item{mean}{Point forecasts as a time series}
 \item{lower}{Lower limits for prediction intervals}
 \item{upper}{Upper limits for prediction intervals}
-\item{conf}{The confidence values associated with the prediction intervals}
+\item{level}{The confidence values associated with the prediction intervals}
 \item{x}{The original time series (either \code{object} itself or the time series used to create the model stored as \code{object}).}
 \item{residuals}{Residuals from the fitted model. That is x minus fitted values.}
 \item{fitted}{Fitted values (one-step forecasts)}

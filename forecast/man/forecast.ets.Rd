@@ -1,15 +1,15 @@
 \name{forecast.ets}
 \alias{forecast.ets}
 \title{Forecasting using ETS models}
-\usage{\method{forecast}{ets}(obj, h=ifelse(obj$m>1, 2*obj$m, 10), conf=c(80,95),
+\usage{\method{forecast}{ets}(object, h=ifelse(object$m>1, 2*object$m, 10), level=c(80,95),
 	fan=FALSE, simulate=FALSE, bootstrap=FALSE, npaths=5000,...)
 }
 
 \arguments{
-\item{obj}{An object of class "\code{ets}". Usually the result of a call to \code{\link{ets}}.}
+\item{object}{An object of class "\code{ets}". Usually the result of a call to \code{\link{ets}}.}
 \item{h}{Number of periods for forecasting}
-\item{conf}{Confidence level for prediction intervals.}
-\item{fan}{If TRUE, conf is set to seq(50,99,by=1). This is suitable for fan plots.}
+\item{level}{Confidence level for prediction intervals.}
+\item{fan}{If TRUE, level is set to seq(50,99,by=1). This is suitable for fan plots.}
 \item{simulate}{If TRUE, prediction intervals produced by simulation rather than using analytic formulae.}
 \item{bootstrap}{If TRUE, simulation uses resampled errors rather than normally distributed errors.}
 \item{npaths}{Number of sample paths used in computing simulated prediction intervals.}
@@ -32,7 +32,7 @@ An object of class \code{"forecast"} is a list containing at least the following
 \item{mean}{Point forecasts as a time series}
 \item{lower}{Lower limits for prediction intervals}
 \item{upper}{Upper limits for prediction intervals}
-\item{conf}{The confidence values associated with the prediction intervals}
+\item{level}{The confidence values associated with the prediction intervals}
 \item{x}{The original time series (either \code{object} itself or the time series used to create the model stored as \code{object}).}
 \item{residuals}{Residuals from the fitted model. That is x minus fitted values.}
 \item{fitted}{Fitted values (one-step forecasts)}

@@ -10,7 +10,7 @@
 \description{Returns seasonally adjusted data constructed by removing the seasonal component.}
 
 \value{Univariate time series.}
-}
+
 \seealso{\code{\link[stats]{stl}}, \code{\link[stats]{decompose}}}
 \author{Rob J Hyndman}
 \examples{plot(AirPassengers)

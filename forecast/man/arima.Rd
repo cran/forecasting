@@ -1,8 +1,8 @@
-\name{arima}
-\alias{arima}
+\name{Arima}
+\alias{Arima}
 \title{Fit ARIMA model to univariate time series}
 \usage{
-arima(x, order = c(0, 0, 0), seasonal = list(order = c(0, 0, 0), period = NA),
+Arima(x, order = c(0, 0, 0), seasonal = list(order = c(0, 0, 0), period = NA),
       xreg = NULL, include.mean = TRUE, include.drift = FALSE, 
       transform.pars = TRUE, fixed = NULL, init = NULL, 
       method = c("CSS-ML", "ML", "CSS"), n.cond, 
@@ -24,16 +24,16 @@ arima(x, order = c(0, 0, 0), seasonal = list(order = c(0, 0, 0), period = NA),
 \item{n.cond}{Only used if fitting by conditional-sum-of-squares: the number of initial observations to ignore. It will be ignored if less than the maximum lag of an AR term.}
 \item{optim.control}{List of control parameters for optim.}
 \item{kappa}{the prior variance (as a multiple of the innovations variance) for the past observations in a differenced model. Do not reduce this.}
-\item{model}{Output from a previous call to \code{arima}. If model is passed, this same model is fitted to
+\item{model}{Output from a previous call to \code{Arima}. If model is passed, this same model is fitted to
 \code{x} without re-estimating any parameters.}
 }
 
 \description{Largely a wrapper for the \code{\link[stats]{arima}} function in the stats package. The main difference is that this function
-returns some additional information that is required by the \code{\link{forecast.Arima}} function. Also, it is possible to
-take an ARIMA model from a previous call to \code{arima} and re-apply it to the data \code{x}.
+allows a drift term. It is also possible to 
+take an ARIMA model from a previous call to \code{Arima} and re-apply it to the data \code{x}.
 }
 \details{See the \code{\link[stats]{arima}} function in the stats package.}
-}
+
 \value{See the \code{\link[stats]{arima}} function in the stats package. The additional objects returned are
 \item{x}{The time series data}
 \item{xreg}{The regressors used in fitting (when relevant).}
@@ -42,11 +42,11 @@ take an ARIMA model from a previous call to \code{arima} and re-apply it to the 
 \seealso{\code{\link[stats]{arima}}}
 
 \author{Rob J Hyndman}
-\examples{fit <- arima(WWWusage,order=c(3,1,0))
+\examples{fit <- Arima(WWWusage,order=c(3,1,0))
 plot(forecast(fit,h=20))
 
-air.model <- arima(AirPassengers[1:100],c(0,1,1))
-air.model2 <- arima(AirPassengers,model=air.model)
+air.model <- Arima(AirPassengers[1:100],c(0,1,1))
+air.model2 <- Arima(AirPassengers,model=air.model)
 outofsample <- ts(fitted(air.model2)[-c(1:100)],s=1957+4/12,f=12)
 }
 \keyword{ts}

@@ -23,7 +23,7 @@
 \value{  None.
 }
 \references{  Makridakis, Wheelwright and Hyndman (1998) \emph{Forecasting:
-methods and applications}, Wiley: New York.
+methods and applications}, Wiley: New York. \url{http://www.robhyndman.info/forecasting/}
 }
 \author{Rob J Hyndman}
 \seealso{\code{\link[stats]{monthplot}}}

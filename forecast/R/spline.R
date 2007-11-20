@@ -40,7 +40,7 @@ spline.loglik <- function(lambda,y,cc=1e2)
 }
 
 # Spline forecasts
-splinef <- function(x, h=10, conf=c(80,95), fan=FALSE)
+splinef <- function(x, h=10, level=c(80,95), fan=FALSE)
 {
     if(!is.ts(x))
         x <- ts(x)
@@ -97,26 +97,26 @@ splinef <- function(x, h=10, conf=c(80,95), fan=FALSE)
 
     # Compute prediction intervals.
     if(fan)
-        conf <- seq(50,99,by=1)
+        level <- seq(51,99,by=3)
     else
     {
-        if(min(conf) > 0 & max(conf) < 1)
-            conf <- 100*conf
-        else if(min(conf) < 0 | max(conf) > 99.99)
+        if(min(level) > 0 & max(level) < 1)
+            level <- 100*level
+        else if(min(level) < 0 | max(level) > 99.99)
             stop("Confidence limit out of range")
     }
-    nconf <- length(conf)
+    nconf <- length(level)
     lower <- upper <- matrix(NA,nrow=h,ncol=nconf)
     for(i in 1:nconf)
     {
-        conf.factor <- qnorm(0.5 + 0.005*conf[i])
+        conf.factor <- qnorm(0.5 + 0.005*level[i])
         upper[,i] <- Yhat + conf.factor*sd
         lower[,i] <- Yhat - conf.factor*sd
     }
     lower <- ts(lower,start=tsp(x)[2]+1/freq,f=freq)
     upper <- ts(upper,start=tsp(x)[2]+1/freq,f=freq)
 
-    return(structure(list(method="Cubic Smoothing Spline",conf=conf,x=x,mean=ts(stdev.x*Yhat+mean.x,f=freq,start=tsp(x)[2]+1/freq),
+    return(structure(list(method="Cubic Smoothing Spline",level=level,x=x,mean=ts(stdev.x*Yhat+mean.x,f=freq,start=tsp(x)[2]+1/freq),
             upper=ts(upper*stdev.x + mean.x,start=tsp(x)[2]+1/freq,f=freq),
             lower=ts(lower*stdev.x + mean.x,start=tsp(x)[2]+1/freq,f=freq),
             model=list(lambda=lambda.est*n^3,call=match.call()),

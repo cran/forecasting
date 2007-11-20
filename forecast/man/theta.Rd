@@ -1,13 +1,13 @@
 \name{thetaf}
 \alias{thetaf}
 \title{Theta method forecast}
-\usage{thetaf(x, h=10, conf=c(80,95), fan=FALSE)}
+\usage{thetaf(x, h=10, level=c(80,95), fan=FALSE)}
 
 \arguments{
 \item{x}{a numeric vector or time series}
 \item{h}{Number of periods for forecasting}
-\item{conf}{Confidence levels for prediction intervals.}
-\item{fan}{If TRUE, conf is set to seq(50,99,by=1). This is suitable for fan plots.}
+\item{level}{Confidence levels for prediction intervals.}
+\item{fan}{If TRUE, level is set to seq(50,99,by=1). This is suitable for fan plots.}
 }
 \description{Returns forecasts and prediction intervals for a theta method forecast.
 }
@@ -30,7 +30,7 @@ An object of class \code{"forecast"} is a list containing at least the following
 \item{mean}{Point forecasts as a time series}
 \item{lower}{Lower limits for prediction intervals}
 \item{upper}{Upper limits for prediction intervals}
-\item{conf}{The confidence values associated with the prediction intervals}
+\item{level}{The confidence values associated with the prediction intervals}
 \item{x}{The original time series (either \code{object} itself or the time series used to create the model stored as \code{object}).}
 \item{residuals}{Residuals from the fitted model. That is x minus fitted values.}
 \item{fitted}{Fitted values (one-step forecasts)}

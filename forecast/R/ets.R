@@ -187,8 +187,8 @@ etsmodel <- function(y, errortype, trendtype, seasontype, damped,
     if(length(par)==1)
         tmp <- options(warn=-1)$warn # Turn off warning on 1-d Nelder-Mead.
 
-    fred <- optim(par,lik,method="Nelder-Mead",y=y,fns=fns, nstate=nstate, errortype=errortype, trendtype=trendtype,
-#    fred <- optim(par,lik,method="BFGS",y=y,fns=fns, nstate=nstate, errortype=errortype, trendtype=trendtype,
+    fred <- optim(par,lik,method="Nelder-Mead",y=y,nstate=nstate, errortype=errortype, trendtype=trendtype,
+#    fred <- optim(par,lik,method="BFGS",y=y,nstate=nstate, errortype=errortype, trendtype=trendtype,
             seasontype=seasontype, damped=damped, par.noopt=par.noopt, lowerb=lower, upperb=upper,
         opt.crit=opt.crit, nmse=nmse, bounds=bounds, m=m,pnames=names(par),pnames2=names(par.noopt),
         control=list(maxit=2000))
@@ -231,13 +231,13 @@ etsmodel <- function(y, errortype, trendtype, seasontype, damped,
 
     tmp <- c("alpha",rep("beta",trendtype!="N"),rep("gamma",seasontype!="N"),rep("phi",damped))
     fit.par <- c(fit.par,par.noopt)
-    fit.par <- fit.par[order(names(fit.par))]
+#    fit.par <- fit.par[order(names(fit.par))]
     if(errortype=="A")
         fits <- y-e$e
     else
         fits <- y/(1+e$e)
 
-    return(list(aic=aic,bic=bic,aicc=aicc,mse=mse,amse=amse,fit=fred,residuals=ts(e$e,f=m,s=tsp.y[1]),fitted=ts(fits,f=m,s=tsp.y[1]),
+    return(list(loglik=-0.5*e$lik,aic=aic,bic=bic,aicc=aicc,mse=mse,amse=amse,fit=fred,residuals=ts(e$e,f=m,s=tsp.y[1]),fitted=ts(fits,f=m,s=tsp.y[1]),
         states=states,par=fit.par))
 }
 
@@ -335,10 +335,10 @@ check.param <- function(alpha,beta,gamma,phi,lower,upper,bounds,m)
 
 initstate <- function(y,trendtype,seasontype)
 {
-    m <- frequency(y)
     if(seasontype!="N")
     {
         # Do decomposition
+        m <- frequency(y)
         if(length(y)>=3*m)
             y.d <- decompose(y,type=switch(seasontype,A="additive",M="multiplicative"))
         else
@@ -352,6 +352,7 @@ initstate <- function(y,trendtype,seasontype)
     }
     else
     {
+        m <- 1
         init.seas <- NULL
         y.sa <- y
     }
@@ -375,7 +376,7 @@ initstate <- function(y,trendtype,seasontype)
 }
 
 
-lik <- function(par,y,fns,nstate,errortype,trendtype,seasontype,damped,par.noopt,lowerb,upperb,
+lik <- function(par,y,nstate,errortype,trendtype,seasontype,damped,par.noopt,lowerb,upperb,
     opt.crit,nmse,bounds,m,pnames,pnames2)
 {
     names(par) <- pnames
@@ -484,13 +485,16 @@ print.ets <- function(x,...)
 
     cat("\n  sigma:  ")
     cat(round(sqrt(x$sigma2),4))
-    cat("\n  AIC:    ")
-    cat(round(x$aic,4))
-    cat("\n  AICc:   ")
-    cat(round(x$aicc,4))
-    cat("\n  BIC:    ")
-    cat(round(x$bic,4))
-    cat("\n")
+    stats <- c(x$aic,x$aicc,x$bic)
+    names(stats) <- c("AIC","AICc","BIC")
+    cat("\n\n")
+    print(stats)
+#    cat("\n  AIC:    ")
+#    cat(round(x$aic,4))
+#    cat("\n  AICc:   ")
+#    cat(round(x$aicc,4))
+#    cat("\n  BIC:    ")
+#    cat(round(x$bic,4))
 }
 
 
@@ -579,7 +583,7 @@ plot.ets <- function(x,...)
         plot(cbind(observed = x$x, level = x$states[,1]),
             main=paste("Decomposition by",x$method,"method"),...)
     }
-    else if(frequency(x$x)==1)
+    else if(x$components[3]=="N")
     {
         plot(cbind(observed = x$x, level = x$states[,1], slope=x$states[,"b"]),
             main=paste("Decomposition by",x$method,"method"),...)
@@ -595,4 +599,21 @@ plot.ets <- function(x,...)
             season=x$states[,"s1"]),
             main=paste("Decomposition by",x$method,"method"),...)
     }
+}
+
+summary.ets <- function(object,...)
+{
+   print(object)
+   cat("\nIn-sample error measures:\n")
+   print(accuracy(object))
+}
+
+coef.ets <- function(object,...)
+{
+   object$par
+}
+
+logLik.ets <- function(object,...)
+{
+    structure(object$loglik,df=length(object$par),class="logLik")
 }
