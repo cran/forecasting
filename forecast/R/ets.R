@@ -2,7 +2,7 @@ ets <- function(y, model="ZZZ", damped=NULL,
         alpha=NULL, beta=NULL, gamma=NULL, phi=NULL, additive.only=FALSE,
         lower=c(rep(0.01,3), 0.8), upper=c(rep(0.99,3),0.98),
         opt.crit=c("lik","amse","mse","sigma"), nmse=3, bounds=c("both","usual","admissible"),
-        ic = c("aic","aicc","bic"))
+        ic = c("aic","aicc","bic"),restrict=TRUE)
 {
     opt.crit <- match.arg(opt.crit)
     bounds <- match.arg(bounds)
@@ -63,11 +63,14 @@ ets <- function(y, model="ZZZ", damped=NULL,
 #    }
 
     # Check inputs
-    if((errortype=="A" & (trendtype=="M" | seasontype=="M")) |
+    if(restrict)
+    {
+        if((errortype=="A" & (trendtype=="M" | seasontype=="M")) |
             (errortype=="M" & trendtype=="M" & seasontype=="A") |
             (additive.only & (errortype=="M" | trendtype=="M" | seasontype=="M")))
         stop("Forbidden model combination")
-
+    }
+    
     data.positive <- (min(y) > 0)
 
     if(!data.positive & errortype=="M")
@@ -99,12 +102,15 @@ ets <- function(y, model="ZZZ", damped=NULL,
                 {
                     if(trendtype[j]=="N" & damped[l])
                         next
-                    if(errortype[i]=="A" & (trendtype[j]=="M" | seasontype[k]=="M"))
-                        next
-                    if(errortype[i]=="M" & trendtype[j]=="M" & seasontype[k]=="A")
-                        next
-                    if(additive.only & (errortype[i]=="M" | trendtype[j]=="M" | seasontype[k]=="M"))
-                        next
+                    if(restrict)
+                    {
+                        if(errortype[i]=="A" & (trendtype[j]=="M" | seasontype[k]=="M"))
+                            next
+                        if(errortype[i]=="M" & trendtype[j]=="M" & seasontype[k]=="A")
+                            next
+                        if(additive.only & (errortype[i]=="M" | trendtype[j]=="M" | seasontype[k]=="M"))
+                            next
+                    }
                     if(!data.positive & errortype[i]=="M")
                         next
                     fit <- etsmodel(y,errortype[i],trendtype[j],seasontype[k],damped[l],alpha,beta,gamma,phi,

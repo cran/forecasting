@@ -6,7 +6,8 @@
 ets(y, model="ZZZ", damped=NULL, alpha=NULL, beta=NULL, gamma=NULL, phi=NULL,
     additive.only=FALSE, lower=c(rep(0.01,3), 0.8), upper=c(rep(0.99,3),0.98),
     opt.crit=c("lik","amse","mse","sigma"), nmse=3,
-    bounds=c("both","usual","admissible"),  ic=c("aic","aicc","bic"))
+    bounds=c("both","usual","admissible"),  ic=c("aic","aicc","bic"),
+    restrict=TRUE)
 }
 
 \arguments{
@@ -39,6 +40,8 @@ indicates all parameters must lie between specified lower and
 upper bounds; \code{"admissible"} indicates parameters must lie in the
 admissible space; \code{"both"} (default) takes the intersection of these regions.}
 \item{ic}{Information criterion to be used in model selection.}
+\item{restrict}{If TRUE, the models with infinite variance will not
+    be allowed.}
 }
 
 \description{Returns ets model applied to x.

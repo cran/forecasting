@@ -374,12 +374,17 @@ print.Arima <- function (x, digits = max(3, getOption("digits") - 3), se = TRUE,
     if(!is.null(x$call$xreg))
     {
         cat("\nRegression variables fitted:\n")
-        x$call$xreg <- as.matrix(x$call$xreg)
+        
+        if(class(x$call$xreg)=="name" | class(x$call$xreg)=="call")
+#            xreg <- as.matrix(eval(parse(text=as.character(x$call$xreg))))
+            xreg <- as.matrix(eval(x$call$xreg))
+        else
+            xreg <- as.matrix(x$call$xreg)
         for(i in 1:3)
-            cat("  ",x$call$xreg[i,],"\n")
+            cat("  ",xreg[i,],"\n")
         cat("   . . .\n")
         for(i in 1:3)
-            cat("  ",x$call$xreg[nrow(x$call$xreg)-3+i,],"\n")
+            cat("  ",xreg[nrow(xreg)-3+i,],"\n")
     }
     if (length(x$coef) > 0) {
         cat("\nCoefficients:\n")
