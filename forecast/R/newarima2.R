@@ -1,10 +1,3 @@
-# Best.arima kept for backwards compatibility
-best.arima <- function(...)
-{
-    warning("best.arima() will be deprecated in a later version. Please use auto.arima() instead.\n")
-    return(auto.arima(...))
-}
-
 auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     max.P=2, max.Q=2, max.order=5,
     start.p=2, start.q=2, start.P=1, start.Q=1,
@@ -13,7 +6,7 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     approximation=length(x)>100 | frequency(x)>12)
 {
     if(!stepwise)
-        return(search.arima(x,d,D,max.p,max.q,max.P,max.Q,max.order,stationary,ic,trace))
+        return(search.arima(x,d,D,max.p,max.q,max.P,max.Q,max.order,stationary,ic,trace,approximation))
 
     ic <- match.arg(ic)
     oldwarn <- options()$warn
@@ -246,7 +239,7 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     # Refit using ML if approximation used for IC
     if(approximation)
     {
-        constant <- length(bestfit$arma) > sum(bestfit$arma[1:4])
+        #constant <- length(bestfit$coef) > sum(bestfit$arma[1:4])
         bestfit <- myarima(x,order=bestfit$arma[c(1,6,2)],
             seasonal=bestfit$arma[c(3,7,4)],constant=constant,ic,trace=FALSE,approximation=FALSE)
     }
@@ -315,17 +308,23 @@ myarima <- function(x, order = c(0, 0, 0), seasonal = c(0, 0, 0), constant=TRUE,
         minroot <- 2
         if(order[1] + seasonal[1] > 0)
         {
-            if(length(fit$model$phi) > 48)
+            testvec <- fit$model$phi
+            last.nonzero <- max((1:length(testvec))[abs(testvec)>1e-8])
+            testvec <- testvec[1:last.nonzero]
+            if(last.nonzero > 48)
                 warning("Unable to check for unit roots")
             else
-                minroot <- min(minroot,abs(polyroot(c(1,-fit$model$phi))))
+                minroot <- min(minroot,abs(polyroot(c(1,-testvec))))
         }
         if(order[3] + seasonal[3] > 0)
         {
-            if(length(fit$model$theta) > 48)
+            testvec <- fit$model$theta
+            last.nonzero <- max((1:length(testvec))[abs(testvec)>1e-8])
+            testvec <- testvec[1:last.nonzero]
+            if(last.nonzero > 48)
                 warning("Unable to check for unit roots")
             else
-                minroot <- min(minroot,abs(polyroot(c(1,fit$model$theta))))
+                minroot <- min(minroot,abs(polyroot(c(1,testvec))))
         }
         if(minroot < 1 + 1e-3)
             fit$ic <- 1e20 # Don't like this model
@@ -371,7 +370,7 @@ arima.string <- function(object)
     result <- paste("ARIMA(",order[1],",",order[2],",",order[3],")",sep="")
     if(order[7]>1 & sum(order[4:6]) > 0)
         result <- paste(result,"(",order[4],",",order[5],",",order[6],")[",order[7],"]",sep="")
-    if(is.element("constant",names(object$coef)))
+    if(is.element("constant",names(object$coef)) | is.element("intercept",names(object$coef)))
         result <- paste(result,"with non-zero mean")
     else if(is.element("drift",names(object$coef)))
         result <- paste(result,"with drift        ")

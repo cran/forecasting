@@ -53,7 +53,7 @@ seasadj <- function(object)
     if(class(object)=="stl")
         return(object$time.series[,2]+object$time.series[,3])
     else if(class(object)=="decomposed.ts")
-        return(object$trend+object$random)
+            return(object$trend+object$random)
     else
         stop("Object of unknown class")
 }
@@ -87,5 +87,3 @@ seasonaldummyf <- function(x, h)
     f=frequency(x)
     return(seasonaldummy(ts(rep(0,h),start=tsp(x)[2]+1/f,freq=f)))
 }
-
-

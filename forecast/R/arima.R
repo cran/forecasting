@@ -1,6 +1,6 @@
 search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     max.P=2, max.Q=2, max.order=5, stationary=FALSE, ic=c("aic","aicc","bic"),
-    trace=FALSE)
+    trace=FALSE,approximation=FALSE)
 {
     ic <- match.arg(ic)
     m <- frequency(x)
@@ -46,7 +46,7 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
                     {
                         for(K in 0:(d+D <= 1))
                         {
-                            fit <- myarima(x,order=c(i,d,j),seasonal=c(I,D,J),constant=(K==1),trace=trace)
+                            fit <- myarima(x,order=c(i,d,j),seasonal=c(I,D,J),constant=(K==1),trace=trace,ic=ic,approximation=approximation)
                             if(fit$ic < best.ic)
                             {
                                 best.ic <- fit$ic
@@ -58,8 +58,18 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
             }
         }
     }
+ 
     if(exists("bestfit"))
+    {
         bestfit$x <- x
+        # Refit using ML if approximation used for IC
+        if(approximation)
+        {
+            constant <- length(bestfit$coef) > sum(bestfit$arma[1:4])
+            bestfit <- myarima(x,order=bestfit$arma[c(1,6,2)],
+                seasonal=bestfit$arma[c(3,7,4)],constant=constant,ic=ic,trace=FALSE,approximation=FALSE)
+        }
+    }
     else
         stop("No ARIMA model able to be estimated")
     bestfit$series <- deparse(substitute(x))

@@ -1,6 +1,6 @@
 importFrom("stats", "simulate")
 
-export(Arima, arima.errors, auto.arima, best.arima, BoxCox, croston,
+export(Arima, arima.errors, auto.arima, BoxCox, croston,
 fitted.Arima, forecast, forecast.ar, forecast.Arima,
 forecast.StructTS, accuracy, holt, hw, InvBoxCox,
 meanf, forecast.HoltWinters, logLik.ets,
