@@ -1,0 +1,4 @@
+Package: expsmooth
+Title: Data sets for "Forecasting with exponential smoothing"
+Description: Data sets from the book "Forecasting with exponential smoothing: the state space approach" by 
+	Hyndman, Koehler, Ord and Snyder (Springer, 2008).

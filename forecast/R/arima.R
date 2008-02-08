@@ -5,9 +5,6 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     ic <- match.arg(ic)
     m <- frequency(x)
     seasonal <- (m > 1)
-    oldwarn <- options()$warn
-    options(warn=-1)
-    on.exit(options(warn=oldwarn))
 
     # Choose order of differencing
     if(stationary)
@@ -30,6 +27,27 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
         if(max.Q > 0)
             max.q <- min(max.q, m-1)
     }
+    
+    if(approximation) # Find constant offset for AIC calculation using simple AR(1) model
+    {
+        if(D==0)
+            fit <- try(arima(x,order=c(1,d,0)))
+        else
+            fit <- try(arima(x,order=c(1,d,0),seasonal=list(c(0,D,0),period=m)))
+        if(class(fit) != "try-error")
+            offset <- -2*fit$loglik - length(x)*log(fit$sigma2)
+        else
+        {
+            warning("Unable to calculate AIC offset")
+            offset <- 0
+        }
+    }
+    else
+        offset <- 0
+        
+    oldwarn <- options()$warn
+    options(warn=-1)
+    on.exit(options(warn=oldwarn))
 
 
     # Choose model orders
@@ -46,7 +64,7 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
                     {
                         for(K in 0:(d+D <= 1))
                         {
-                            fit <- myarima(x,order=c(i,d,j),seasonal=c(I,D,J),constant=(K==1),trace=trace,ic=ic,approximation=approximation)
+                            fit <- myarima(x,order=c(i,d,j),seasonal=c(I,D,J),constant=(K==1),trace=trace,ic=ic,approximation=approximation,offset=offset)
                             if(fit$ic < best.ic)
                             {
                                 best.ic <- fit$ic
@@ -66,8 +84,15 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
         if(approximation)
         {
             constant <- length(bestfit$coef) > sum(bestfit$arma[1:4])
-            bestfit <- myarima(x,order=bestfit$arma[c(1,6,2)],
-                seasonal=bestfit$arma[c(3,7,4)],constant=constant,ic=ic,trace=FALSE,approximation=FALSE)
+            newbestfit <- myarima(x,order=bestfit$arma[c(1,6,2)],
+                seasonal=bestfit$arma[c(3,7,4)],constant=constant,ic,trace=FALSE,approximation=FALSE)
+            if(newbestfit$ic > 1e19)
+            {
+                options(warn=oldwarn)
+                warning("Unable to fit final model using maximum likelihood. AIC value approximated")
+            }
+            else
+                bestfit <- newbestfit            
         }
     }
     else
@@ -412,7 +437,7 @@ print.Arima <- function (x, digits = max(3, getOption("digits") - 3), se = TRUE,
     {
         cat("\nsigma^2 estimated as ", format(x$sigma2, digits = digits),
             ":  log likelihood = ", format(round(x$loglik, 2)),"\n",sep="")
-        npar <- length(x$coef)
+        npar <- length(x$coef) + 1
         n <- length(x$x)
         bic <- x$aic + npar*(log(n) - 2)
         aicc <- x$aic + 2*npar*(n/(n-npar-1) - 1)
