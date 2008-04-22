@@ -46,7 +46,7 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
         if(D==0)
             fit <- try(arima(x,order=c(1,d,0)))
         else
-            fit <- try(arima(x,order=c(1,d,0),seasonal=list(c(0,D,0),period=m)))
+            fit <- try(arima(x,order=c(1,d,0),seasonal=list(order=c(0,D,0),period=m)))
         if(class(fit) != "try-error")
             offset <- -2*fit$loglik - length(x)*log(fit$sigma2)
         else

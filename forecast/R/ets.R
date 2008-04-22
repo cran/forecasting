@@ -10,6 +10,7 @@ ets <- function(y, model="ZZZ", damped=NULL,
 
     if(class(y)=="data.frame" | class(y)=="list" | class(y)=="matrix")
         stop("y should be a vector")
+    y <- as.ts(y)
 
     if(nmse < 1 | nmse > 10)
         stop("nmse out of range")

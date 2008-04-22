@@ -7,7 +7,7 @@ meanf, forecast.HoltWinters, logLik.ets,
 monthdays, na.interp, ets, plot.ets, plot.forecast,
 plot.splineforecast, rwf, seasadj, seasonaldummy,
 seasonaldummyf, seasonplot, ses, sindexf, splinef,
-thetaf, tsdisplay, simulate.ets, ndiffs)
+thetaf, tsdisplay, simulate.ets, ndiffs, dm.test)
 
 S3method(fitted,Arima)
 S3method(forecast,default)

@@ -3,7 +3,7 @@
 \docType{data}
 \title{Monthly patient count}
 \description{Monthly patient count for products that are related to medical problems. There are 767 time series that had a mean count of at least 10 and no zeros.}
-}
+
 \usage{data(hospital)}
 \format{multiple time series}
 \source{
