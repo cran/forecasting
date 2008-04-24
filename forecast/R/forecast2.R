@@ -200,7 +200,7 @@ forecast.HoltWinters <- function(object,h=ifelse(frequency(object$x)>1,2*frequen
     }
     nint <- length(level)
     upper <- lower <- matrix(NA,ncol=nint,nrow=length(pred[,1]))
-    se <- (pred[,3]-pred[,2])/(2*qnorm(0.5*(1+level[1]/100)))
+    se <- (pred[,2]-pred[,3])/(2*qnorm(0.5*(1+level[1]/100)))
     for(i in 1:nint)
     {
         qq <- qnorm(0.5*(1+level[i]/100))

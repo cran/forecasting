@@ -7,6 +7,9 @@ ets <- function(y, model="ZZZ", damped=NULL,
     opt.crit <- match.arg(opt.crit)
     bounds <- match.arg(bounds)
     ic <- match.arg(ic)
+    
+    if(max(y) > 1e6)
+        warning("Very large numbers which may cause numerical problems. Try scaling the data first")
 
     if(class(y)=="data.frame" | class(y)=="list" | class(y)=="matrix")
         stop("y should be a vector")
@@ -417,7 +420,7 @@ lik <- function(par,y,nstate,errortype,trendtype,seasontype,damped,par.noopt,low
         phi <- NULL
 
     if(!check.param(alpha,beta,gamma,phi,lowerb,upperb,bounds,m))
-        return(1e8)
+        return(1e12)
 
     np <- length(par)
 
@@ -585,7 +588,7 @@ admissible <- function(alpha,beta,gamma,phi,m)
 ### PLOT COMPONENTS
 plot.ets <- function(x,...)
 {
-    if(frequency(x$x)==1 & x$components[2]=="N")
+    if(x$components[3]=="N" & x$components[2]=="N")
     {
         plot(cbind(observed = x$x, level = x$states[,1]),
             main=paste("Decomposition by",x$method,"method"),...)

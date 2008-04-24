@@ -52,9 +52,10 @@ R.D., Grose, S. (2002) "A state space framework for automatic
 forecasting using exponential smoothing methods",
 \emph{International J. Forecasting}, \bold{18}(3), 439--454.
 
-Hyndman, R.J., Akram, Md., and Archibald, B. (2007) "The
+Hyndman, R.J., Akram, Md., and Archibald, B. (2008) "The
 admissible parameter space for exponential smoothing models".
-\emph{Annals of Statistical Mathematics}, to appear.}
+\emph{Annals of Statistical Mathematics}, \bold{60}(2),
+407--426.}
 
 
 

@@ -43,12 +43,12 @@ possible model within the order constraints provided.}
 \details{Non-stepwise selection can be slow, especially for seasonal data.
 Non-seasonal differences chosen using \code{\link[tseries]{kpss.test}}.
 Seasonal differences chosen using a variation on the Canova-Hansen test. Stepwise algorithm
-outlined in Hyndman and Khandakar (2007).
+outlined in Hyndman and Khandakar (2008).
 }
 \value{Same as for \code{\link{arima}}}
 
-\references{Hyndman, R.J. and Khandakar, Y. (2007) "Automatic time series forecasting: The forecast
-package for R", \emph{Journal of Statistical Software}, to appear.}
+\references{Hyndman, R.J. and Khandakar, Y. (2008) "Automatic time series forecasting: The forecast
+package for R", \emph{Journal of Statistical Software}, \bold{26}(3).}
 
 
 \seealso{\code{\link{arima}}}
