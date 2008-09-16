@@ -79,7 +79,6 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
  
     if(exists("bestfit"))
     {
-        bestfit$x <- x
         # Refit using ML if approximation used for IC
         if(approximation)
         {
@@ -97,6 +96,8 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     }
     else
         stop("No ARIMA model able to be estimated")
+
+    bestfit$x <- x
     bestfit$series <- deparse(substitute(x))
     bestfit$ic=NULL
 
