@@ -335,22 +335,28 @@ myarima <- function(x, order = c(0, 0, 0), seasonal = c(0, 0, 0), constant=TRUE,
         if(order[1] + seasonal[1] > 0)
         {
             testvec <- fit$model$phi
-            last.nonzero <- max((1:length(testvec))[abs(testvec)>1e-8])
-            testvec <- testvec[1:last.nonzero]
-            if(last.nonzero > 48)
-                warning("Unable to check for unit roots")
-            else
-                minroot <- min(minroot,abs(polyroot(c(1,-testvec))))
+            last.nonzero <- max(which(abs(testvec)>1e-8)) 
+            if(last.nonzero > 0)
+            {
+                testvec <- testvec[1:last.nonzero]
+                if(last.nonzero > 48)
+                    warning("Unable to check for unit roots")
+                else
+                    minroot <- min(minroot,abs(polyroot(c(1,-testvec))))
+            }
         }
         if(order[3] + seasonal[3] > 0)
         {
             testvec <- fit$model$theta
-            last.nonzero <- max((1:length(testvec))[abs(testvec)>1e-8])
-            testvec <- testvec[1:last.nonzero]
-            if(last.nonzero > 48)
-                warning("Unable to check for unit roots")
-            else
-                minroot <- min(minroot,abs(polyroot(c(1,testvec))))
+            last.nonzero <- max(which(abs(testvec)>1e-8)) 
+            if(last.nonzero > 0)
+            {
+                testvec <- testvec[1:last.nonzero]
+                if(last.nonzero > 48)
+                    warning("Unable to check for unit roots")
+                else
+                    minroot <- min(minroot,abs(polyroot(c(1,testvec))))
+            }
         }
         if(minroot < 1 + 1e-3)
             fit$ic <- 1e20 # Don't like this model
