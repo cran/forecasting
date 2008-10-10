@@ -439,9 +439,9 @@ print.Arima <- function (x, digits = max(3, getOption("digits") - 3), se = TRUE,
         cat("\nsigma^2 estimated as ", format(x$sigma2, digits = digits),
             ":  log likelihood = ", format(round(x$loglik, 2)),"\n",sep="")
         npar <- length(x$coef) + 1
-        n <- length(x$x)
-        bic <- x$aic + npar*(log(n) - 2)
-        aicc <- x$aic + 2*npar*(n/(n-npar-1) - 1)
+        nstar <- length(x$x) - x$arma[6] - x$arma[7]*x$arma[5]
+        bic <- x$aic + npar*(log(nstar) - 2)
+        aicc <- x$aic + 2*npar*(nstar/(nstar-npar-1) - 1)
         cat("AIC = ", format(round(x$aic, 2)), sep = "")
         cat("   AICc = ", format(round(aicc, 2)), sep = "")
         cat("   BIC = ", format(round(bic, 2)), "\n",sep = "")

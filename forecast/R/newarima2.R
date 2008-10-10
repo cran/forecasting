@@ -312,6 +312,7 @@ myarima <- function(x, order = c(0, 0, 0), seasonal = c(0, 0, 0), constant=TRUE,
     }
     if(class(fit) != "try-error")
     {
+        nstar <- n - order[2] - seasonal[2]*m
         if(diffs==1 & constant)
         {
             fitnames <- names(fit$coef)
@@ -321,11 +322,11 @@ myarima <- function(x, order = c(0, 0, 0), seasonal = c(0, 0, 0), constant=TRUE,
         }
         npar <- length(fit$coef) + 1
         if(approximation)
-            fit$aic <- offset + n * log(fit$sigma2) + 2 * npar
+            fit$aic <- offset + nstar * log(fit$sigma2) + 2 * npar
         if(!is.na(fit$aic))
         {
-            fit$bic <- fit$aic + npar*(log(n) - 2)
-            fit$aicc <- fit$aic + 2*npar*(n/(n-npar-1) - 1)
+            fit$bic <- fit$aic + npar*(log(nstar) - 2)
+            fit$aicc <- fit$aic + 2*npar*(nstar/(nstar-npar-1) - 1)
             fit$ic <- switch(ic,bic=fit$bic,aic=fit$aic,aicc=fit$aicc)
         }
         else

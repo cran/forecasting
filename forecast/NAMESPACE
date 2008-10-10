@@ -1,4 +1,5 @@
 importFrom("stats", "simulate")
+importFrom("stats", "tsdiag")
 
 export(Arima, arima.errors, auto.arima, BoxCox, croston,
 fitted.Arima, forecast, forecast.ar, forecast.Arima,
@@ -30,6 +31,8 @@ S3method(coef,ets)
 S3method(simulate,ets)
 S3method(predict,default)
 S3method(logLik,ets)
+S3method(tsdiag,ets)
+
 
 
 
