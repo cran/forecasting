@@ -1,6 +1,6 @@
 ets <- function(y, model="ZZZ", damped=NULL,
         alpha=NULL, beta=NULL, gamma=NULL, phi=NULL, additive.only=FALSE,
-        lower=c(rep(0.01,3), 0.8), upper=c(rep(0.99,3),0.98),
+        lower=c(rep(0.0001,3), 0.8), upper=c(rep(0.9999,3),0.98),
         opt.crit=c("lik","amse","mse","sigma"), nmse=3, bounds=c("both","usual","admissible"),
         ic = c("aic","aicc","bic"),restrict=TRUE)
 {
@@ -52,7 +52,7 @@ ets <- function(y, model="ZZZ", damped=NULL,
     if(!is.element(seasontype,c("N","A","M","Z")))
         stop("Invalid season type")
 
-    if(m==1)
+    if(m <= 1)
     {
         if(seasontype=="A" | seasontype=="M")
             stop("Nonseasonal data")
@@ -154,8 +154,13 @@ etsmodel <- function(y, errortype, trendtype, seasontype, damped,
   alpha=NULL, beta=NULL, gamma=NULL, phi=NULL,
   lower, upper, opt.crit, nmse, bounds)
 {
+    tsp.y <- tsp(y)
+    if(is.null(tsp.y))
+        tsp.y <- c(1,length(y),1)
+    m <- tsp.y[3]
+
     # Initialize smoothing parameters
-    par <- initparam(alpha,beta,gamma,phi,trendtype,seasontype,damped,lower,upper)
+    par <- initparam(alpha,beta,gamma,phi,trendtype,seasontype,damped,lower,upper,m)
     names(alpha) <- names(beta) <- names(gamma) <- names(phi) <- NULL
     par.noopt <- c(alpha=alpha,beta=beta,gamma=gamma,phi=phi)
     if(!is.null(par.noopt))
@@ -168,11 +173,6 @@ etsmodel <- function(y, errortype, trendtype, seasontype, damped,
         gamma <- par["gamma"]
     if(!is.na(par["phi"]))
         phi <- par["phi"]
-
-    tsp.y <- tsp(y)
-    if(is.null(tsp.y))
-        tsp.y <- c(1,length(y),1)
-    m <- tsp.y[3]
 
 #    if(errortype=="M" | trendtype=="M" | seasontype=="M")
 #        bounds="usual"
@@ -251,12 +251,14 @@ etsmodel <- function(y, errortype, trendtype, seasontype, damped,
         states=states,par=fit.par))
 }
 
-initparam <- function(alpha,beta,gamma,phi,trendtype,seasontype,damped,lower,upper)
+initparam <- function(alpha,beta,gamma,phi,trendtype,seasontype,damped,lower,upper,m)
 {
     # Set up initial parameters
     par <- numeric(0)
     if(is.null(alpha))
     {
+        if(m > 12)
+            alpha <- 0.0002
         if(is.null(beta) & is.null(gamma))
             alpha <- lower[1] + .5*(upper[1]-lower[1])
         else if(is.null(gamma))
@@ -274,9 +276,12 @@ initparam <- function(alpha,beta,gamma,phi,trendtype,seasontype,damped,lower,upp
     {
         if(trendtype !="N")
         {
-            beta <- lower[2] + .1*(upper[2]-lower[2])
+            if(m > 12)
+                beta <- 0.00015
+            else
+                beta <- lower[2] + .1*(upper[2]-lower[2])
             if(beta > alpha)
-                beta <- min(alpha - 0.001,0.001)
+                beta <- min(alpha - 0.0001,0.0001)
             if(beta < lower[2] | beta > upper[2])
                 stop("Can't find consistent starting parameters")
             par <- c(par,beta)
@@ -287,7 +292,10 @@ initparam <- function(alpha,beta,gamma,phi,trendtype,seasontype,damped,lower,upp
     {
         if(seasontype !="N")
         {
-            gamma <- lower[3] + .01*(upper[3]-lower[3])
+            if(m > 12)
+                gamma <- 0.0002
+            else
+                gamma <- lower[3] + .01*(upper[3]-lower[3])
             if(gamma > 1-alpha)
                 gamma <- min(0.999-alpha,0.001)
             if(gamma < lower[3] | gamma > upper[3])
@@ -362,7 +370,7 @@ initstate <- function(y,trendtype,seasontype)
     }
     else
     {
-        m <- 1
+        m <- 1 
         init.seas <- NULL
         y.sa <- y
     }

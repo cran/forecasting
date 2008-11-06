@@ -4,7 +4,7 @@
 \title{Exponential smoothing state space model}
 \usage{
 ets(y, model="ZZZ", damped=NULL, alpha=NULL, beta=NULL, gamma=NULL, phi=NULL,
-    additive.only=FALSE, lower=c(rep(0.01,3), 0.8), upper=c(rep(0.99,3),0.98),
+    additive.only=FALSE, lower=c(rep(0.0001,3), 0.8), upper=c(rep(0.9999,3),0.98),
     opt.crit=c("lik","amse","mse","sigma"), nmse=3,
     bounds=c("both","usual","admissible"),  ic=c("aic","aicc","bic"),
     restrict=TRUE)
