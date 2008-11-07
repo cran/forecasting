@@ -350,7 +350,7 @@ Arima <- function(x, order = c(0, 0, 0),
       n.cond, optim.control = list(), kappa = 1e6, model=NULL)
 {
     if(!is.null(model))
-        return(arima2(x,model))
+        return(arima2(x,model,xreg))
     if(include.drift)
     {
         drift <- 1:length(x)
@@ -370,16 +370,21 @@ Arima <- function(x, order = c(0, 0, 0),
 }
 
 # Refits the model to new data x
-arima2 <- function (x, model)
+arima2 <- function (x, model, xreg)
 {
     use.drift <- is.element("drift",names(model$coef))
     use.intercept <- is.element("intercept",names(model$coef))
+    use.xreg <- is.element("xreg",names(model$call))
     if(use.drift)
-        xreg <- length(model$x)+(1:length(x))
+    {
+        time.offset <- (tsp(x)[1] - tsp(model$x)[1])*tsp(x)[3]
+        xreg <- cbind(xreg, time.offset+(1:length(x)))
+        names(xreg)[ncol(xreg)] <- "drift"    
+    }
 
     if(model$arma[5]>1 & sum(abs(model$arma[c(3,4,7)]))>0) # Seasonal model
     {
-        if(use.drift)
+        if(use.xreg)
             refit <- Arima(x,order=model$arma[c(1,6,2)],seasonal=list(order=model$arma[c(3,7,4)],period=model$arma[5]),
                 fixed=model$coef,include.mean=use.intercept,xreg=xreg)
         else
@@ -388,13 +393,14 @@ arima2 <- function (x, model)
     }
     else if(length(model$coef)>0) # Nonseasonal model with some parameters
     {
-        if(use.drift)
+        if(use.xreg)
            refit <- Arima(x,order=model$arma[c(1,6,2)],fixed=model$coef,xreg=xreg,include.mean=use.intercept)
         else
             refit <- Arima(x,order=model$arma[c(1,6,2)],fixed=model$coef,include.mean=use.intercept)
     }
     else # No parameters
-        refit <- Arima(x,order=model$arma[c(1,6,2)],include.mean=FALSE)
+            refit <- Arima(x,order=model$arma[c(1,6,2)],include.mean=FALSE)
+
     refit$var.coef <- matrix(0,length(refit$coef),length(refit$coef))
     return(refit)
 }
