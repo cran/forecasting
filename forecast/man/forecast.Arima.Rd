@@ -3,13 +3,13 @@
 \alias{forecast.ar}
 \title{Forecasting using ARIMA models}
 \usage{\method{forecast}{Arima}(object, h=ifelse(object$arma[5]>1,2*object$arma[5],10),
-	level=c(80,95), fan=FALSE, xreg=NULL,...)
+    level=c(80,95), fan=FALSE, xreg=NULL,...)
 \method{forecast}{ar}(object, h=10, level=c(80,95), fan=FALSE, ...)
 }
 
 \arguments{
 \item{object}{An object of class "\code{Arima}" or "\code{ar}". Usually the result of a call to \code{\link[stats]{arima}} or \code{\link[stats]{ar}}.}
-\item{h}{Number of periods for forecasting}
+\item{h}{Number of periods for forecasting. If \code{xreg} is used, h is ignored and the number of forecast periods is set to the number of rows of xreg.}
 \item{level}{Confidence level for prediction intervals.}
 \item{fan}{If TRUE, level is set to seq(50,99,by=1). This is suitable for fan plots.}
 \item{xreg}{Future values of an regression variables (for class \code{Arima} objects only).}

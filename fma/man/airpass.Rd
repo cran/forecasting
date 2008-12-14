@@ -1,7 +1,7 @@
 \name{airpass}
 \alias{airpass}
 \title{Monthly Airline Passenger Numbers 1949-1960}
-\description{The classic Box & Jenkins airline data. Monthly totals of international airline passengers (1949--1956).}
+\description{The classic Box & Jenkins airline data. Monthly totals of international airline passengers (1949--1960).}
 \usage{airpass}
 \format{A monthly time series, in thousands.
 }

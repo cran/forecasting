@@ -1,6 +1,6 @@
 search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     max.P=2, max.Q=2, max.order=5, stationary=FALSE, ic=c("aic","aicc","bic"),
-    trace=FALSE,approximation=FALSE)
+    trace=FALSE,approximation=FALSE,xreg=NULL,offset=offset)
 {
     ic <- match.arg(ic)
     m <- frequency(x)
@@ -20,31 +20,14 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     if(is.na(d))
         d <- ndiffs(dx)
 
-    if(m>1)
+    if(m > 1)
     {
         if(max.P > 0)
             max.p <- min(max.p, m-1)
         if(max.Q > 0)
             max.q <- min(max.q, m-1)
     }
-    
-    if(approximation) # Find constant offset for AIC calculation using simple AR(1) model
-    {
-        if(D==0)
-            fit <- try(arima(x,order=c(1,d,0)))
-        else
-            fit <- try(arima(x,order=c(1,d,0),seasonal=list(order=c(0,D,0),period=m)))
-        if(class(fit) != "try-error")
-            offset <- -2*fit$loglik - length(x)*log(fit$sigma2)
-        else
-        {
-            warning("Unable to calculate AIC offset")
-            offset <- 0
-        }
-    }
-    else
-        offset <- 0
-        
+            
     oldwarn <- options()$warn
     options(warn=-1)
     on.exit(options(warn=oldwarn))
@@ -64,7 +47,7 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
                     {
                         for(K in 0:(d+D <= 1))
                         {
-                            fit <- myarima(x,order=c(i,d,j),seasonal=c(I,D,J),constant=(K==1),trace=trace,ic=ic,approximation=approximation,offset=offset)
+                            fit <- myarima(x,order=c(i,d,j),seasonal=c(I,D,J),constant=(K==1),trace=trace,ic=ic,approximation=approximation,offset=offset,xreg=xreg)
                             if(fit$ic < best.ic)
                             {
                                 best.ic <- fit$ic
@@ -84,7 +67,7 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
         {
             constant <- length(bestfit$coef) > sum(bestfit$arma[1:4])
             newbestfit <- myarima(x,order=bestfit$arma[c(1,6,2)],
-                seasonal=bestfit$arma[c(3,7,4)],constant=constant,ic,trace=FALSE,approximation=FALSE)
+                seasonal=bestfit$arma[c(3,7,4)],constant=constant,ic,trace=FALSE,approximation=FALSE,xreg=xreg)
             if(newbestfit$ic > 1e19)
             {
                 options(warn=oldwarn)
@@ -99,7 +82,9 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
 
     bestfit$x <- x
     bestfit$series <- deparse(substitute(x))
-    bestfit$ic=NULL
+    bestfit$ic <- NULL
+    bestfit$xreg <- xreg
+    bestfit$call <- match.call()
 
     if(trace)
         cat("\n\n")
@@ -231,6 +216,11 @@ forecast.Arima <- function (object, h = ifelse(object$arma[5] > 1, 2 * object$ar
     usexreg <- (!is.null(xreg) | use.drift)# | use.constant)
 #    if(use.constant)
 #        xreg <- as.matrix(rep(1,h))
+    if(!is.null(xreg))
+    {
+        xreg <- as.matrix(xreg)
+        h <- nrow(xreg)
+    }
     if (use.drift)
     {
         n <- length(x)
@@ -319,10 +309,10 @@ arima.errors <- function(z)
             stop("missing component series in argument z\n")
         x <- eval(parse(text = series.name))
     }
-    if(!is.element("xreg",names(z$call)))
+    if(!is.element("xreg",names(z)))
         return(x)
     else
-        xreg <- z$call$xreg
+        xreg <- z$xreg
     norder <- sum(z$arma[1:4])
     if(is.element("intercept",names(z$coef)))
         xreg <- cbind(rep(1,length(x)),xreg)
@@ -350,22 +340,26 @@ Arima <- function(x, order = c(0, 0, 0),
       n.cond, optim.control = list(), kappa = 1e6, model=NULL)
 {
     if(!is.null(model))
-        return(arima2(x,model,xreg))
-    if(include.drift)
-    {
-        drift <- 1:length(x)
-        xreg <- cbind(xreg,drift)
-    }
-    if(is.null(xreg))
-        tmp <- stats:::arima(x=x,order=order,seasonal=seasonal,include.mean=include.mean,
-            transform.pars=transform.pars,fixed=fixed,init=init,method=method,n.cond=n.cond,optim.control=optim.control,kappa=kappa)
+        tmp <- arima2(x,model,xreg)
     else
-        tmp <- stats:::arima(x=x,order=order,seasonal=seasonal,xreg=xreg,include.mean=include.mean,
-               transform.pars=transform.pars,fixed=fixed,init=init,method=method,n.cond=n.cond,optim.control=optim.control,kappa=kappa)
+    {
+        if(include.drift)
+        {
+            drift <- 1:length(x)
+            xreg <- cbind(xreg,drift)
+        }
+        if(is.null(xreg))
+            tmp <- stats:::arima(x=x,order=order,seasonal=seasonal,include.mean=include.mean,
+                transform.pars=transform.pars,fixed=fixed,init=init,method=method,n.cond=n.cond,optim.control=optim.control,kappa=kappa)
+        else
+            tmp <- stats:::arima(x=x,order=order,seasonal=seasonal,xreg=xreg,include.mean=include.mean,
+                   transform.pars=transform.pars,fixed=fixed,init=init,method=method,n.cond=n.cond,optim.control=optim.control,kappa=kappa)
+    }
     tmp$x <- x
     tmp$series <- deparse(substitute(x))
     if(!is.null(xreg))
-        tmp$call$xreg <- xreg
+        tmp$xreg <- xreg
+    tmp$call <- match.call()
     return(tmp)
 }
 
@@ -408,26 +402,22 @@ arima2 <- function (x, model, xreg)
 print.Arima <- function (x, digits = max(3, getOption("digits") - 3), se = TRUE,
     ...)
 {
-    if (!is.element("x", names(x)))
-        x$x <- eval(parse(text = x$series))
+#    if (!is.element("x", names(x)))
+#        x$x <- eval(parse(text = x$series))
 
     cat("Series:",x$series,"\n")
     cat(arima.string(x),"\n")
-    if(!is.null(x$call$xreg))
-    {
-        cat("\nRegression variables fitted:\n")
-        
-        if(class(x$call$xreg)=="name" | class(x$call$xreg)=="call")
-#            xreg <- as.matrix(eval(parse(text=as.character(x$call$xreg))))
-            xreg <- as.matrix(eval(x$call$xreg))
-        else
-            xreg <- as.matrix(x$call$xreg)
-        for(i in 1:3)
-            cat("  ",xreg[i,],"\n")
-        cat("   . . .\n")
-        for(i in 1:3)
-            cat("  ",xreg[nrow(xreg)-3+i,],"\n")
-    }
+    cat("\nCall:", deparse(x$call, width.cutoff = 75), "\n", sep = " ")
+#    if(!is.null(x$xreg))
+#    {
+#        cat("\nRegression variables fitted:\n")
+#        xreg <- as.matrix(x$xreg)
+#        for(i in 1:3)
+#            cat("  ",xreg[i,],"\n")
+#        cat("   . . .\n")
+#        for(i in 1:3)
+#            cat("  ",xreg[nrow(xreg)-3+i,],"\n")
+#    }
     if (length(x$coef) > 0) {
         cat("\nCoefficients:\n")
         coef <- round(x$coef, digits = digits)
@@ -445,7 +435,7 @@ print.Arima <- function (x, digits = max(3, getOption("digits") - 3), se = TRUE,
         cat("\nsigma^2 estimated as ", format(x$sigma2, digits = digits),
             ":  log likelihood = ", format(round(x$loglik, 2)),"\n",sep="")
         npar <- length(x$coef) + 1
-        nstar <- length(x$x) - x$arma[6] - x$arma[7]*x$arma[5]
+        nstar <- length(x$residuals) - x$arma[6] - x$arma[7]*x$arma[5]
         bic <- x$aic + npar*(log(nstar) - 2)
         aicc <- x$aic + 2*npar*(nstar/(nstar-npar-1) - 1)
         cat("AIC = ", format(round(x$aic, 2)), sep = "")

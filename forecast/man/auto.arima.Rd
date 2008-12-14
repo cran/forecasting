@@ -4,11 +4,11 @@
 \title{Fit best ARIMA model to univariate time series}
 \usage{
 auto.arima(x, d = NA, D = NA, max.p = 5, max.q = 5,
-            max.P = 2, max.Q = 2, max.order = 5,
-            start.p=2, start.q=2, start.P=1, start.Q=1,
-			stationary = FALSE, ic = c("aic","aicc", "bic"), 
-            stepwise=TRUE, trace=FALSE, 
-            approximation=length(x)>100 | frequency(x)>12)
+           max.P = 2, max.Q = 2, max.order = 5,
+           start.p=2, start.q=2, start.P=1, start.Q=1,
+           stationary = FALSE, ic = c("aic","aicc", "bic"), 
+           stepwise=TRUE, trace=FALSE, 
+           approximation=length(x)>100 | frequency(x)>12, xreg=NULL)
 }
 
 \arguments{
@@ -35,6 +35,7 @@ auto.arima(x, d = NA, D = NA, max.p = 5, max.q = 5,
     still computed using maximum likelihood estimation. Approximation should be used
     for long time series or a high seasonal period to avoid excessive computation
     times.}
+\item{xreg}{Optionally, a vector or matrix of external regressors, which must have the same number of rows as x.}
 }
 \description{Returns best ARIMA model according to either AIC, AICc or BIC value.
 The function conducts a search over
