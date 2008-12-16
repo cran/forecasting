@@ -10,7 +10,14 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
 
     # Choose order of differencing
     if(!is.null(xreg))
+    {
+        nmxreg <- deparse(substitute(xreg))
+        xreg <- as.matrix(xreg)
+        if (is.null(colnames(xreg))) 
+            colnames(xreg) <- if (ncol(xreg) == 1) nmxreg
+                              else paste(nmxreg, 1:ncol(xreg), sep = "")
         xx <- residuals(lm(x ~ xreg))
+    }
     else
         xx <- x
     if(stationary)
@@ -278,7 +285,6 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     bestfit$x <- x
     bestfit$series <- deparse(substitute(x))
     bestfit$ic=NULL
-    bestfit$xreg <- xreg
     bestfit$call <- match.call()
 
     if(trace)

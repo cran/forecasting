@@ -4,30 +4,7 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
 {
     ic <- match.arg(ic)
     m <- frequency(x)
-    seasonal <- (m > 1)
-
-    # Choose order of differencing
-    if(stationary)
-        d <- D <- 0
-    if(!seasonal)
-        D <- max.P <- max.Q <- 0
-    else if(is.na(D))
-        D <- nsdiffs(x)
-    if(D > 0)
-        dx <- diff(x,D)
-    else
-        dx <- x
-    if(is.na(d))
-        d <- ndiffs(dx)
-
-    if(m > 1)
-    {
-        if(max.P > 0)
-            max.p <- min(max.p, m-1)
-        if(max.Q > 0)
-            max.q <- min(max.q, m-1)
-    }
-            
+         
     oldwarn <- options()$warn
     options(warn=-1)
     on.exit(options(warn=oldwarn))
@@ -83,8 +60,8 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     bestfit$x <- x
     bestfit$series <- deparse(substitute(x))
     bestfit$ic <- NULL
-    bestfit$xreg <- xreg
     bestfit$call <- match.call()
+    bestfit$xreg <- xreg
 
     if(trace)
         cat("\n\n")
@@ -212,7 +189,7 @@ forecast.Arima <- function (object, h = ifelse(object$arma[5] > 1, 2 * object$ar
     if (is.element("x", names(object)))
         x <- object$x
     else
-        x <- eval(parse(text = object$series))
+        x <- object$x <- eval.parent(parse(text = object$series))
     usexreg <- (!is.null(xreg) | use.drift)# | use.constant)
 #    if(use.constant)
 #        xreg <- as.matrix(rep(1,h))
@@ -230,7 +207,18 @@ forecast.Arima <- function (object, h = ifelse(object$arma[5] > 1, 2 * object$ar
             xreg <- as.matrix((1:h)+n)
     }
     if(usexreg)
+    {
+        if(!is.null(object$xreg))
+            object$call$xreg <- object$xreg
+        else # object from arima() rather than Arima()
+        {
+            xr <- object$call$xreg
+            object$call$xreg <- if (!is.null(xr))         
+                                    eval.parent(xr)
+                                else NULL
+        }
         pred <- predict(object, n.ahead = h, newxreg = xreg)
+    }
     else
         pred <- predict(object, n.ahead = h)
 
@@ -285,7 +273,7 @@ forecast.ar <- function(object,h=10,level=c(80,95),fan=FALSE,...)
     }
     colnames(lower) = colnames(upper) = paste(level,"%",sep="")
     method <- paste("AR(",object$order,")",sep="")
-    x <- as.ts(eval(parse(text=object$series)))
+    x <- as.ts(eval.parent(parse(text=object$series)))
     f=frequency(x)
     res <- ts(object$resid[-(1:object$order)],start=tsp(x)[1]+object$order/f,f=f)
     fits <- x-res
@@ -307,10 +295,15 @@ arima.errors <- function(z)
         series.name <- z$series
         if(is.null(series.name))
             stop("missing component series in argument z\n")
-        x <- eval(parse(text = series.name))
+        x <- eval.parent(parse(text = series.name))
     }
     if(!is.element("xreg",names(z)))
-        return(x)
+    {
+        if(!is.element("xreg",names(z$coef)))
+            return(x)
+        else
+            xreg <- eval.parent(z$coef$xreg)
+    }
     else
         xreg <- z$xreg
     norder <- sum(z$arma[1:4])
@@ -325,7 +318,7 @@ fitted.Arima <- function(object,...)
     if(is.element("x",names(object)))
         x <- object$x
     else
-        x <- eval(parse(text=object$series))
+        x <- eval.parent(parse(text=object$series))
 
     return(x - object$residuals)
 }
@@ -343,10 +336,18 @@ Arima <- function(x, order = c(0, 0, 0),
         tmp <- arima2(x,model,xreg)
     else
     {
+        if (!is.null(xreg))
+        {
+            nmxreg <- deparse(substitute(xreg))
+            xreg <- as.matrix(xreg)
+            if (is.null(colnames(xreg))) 
+                colnames(xreg) <- if (ncol(xreg) == 1) nmxreg
+                                  else paste(nmxreg, 1:ncol(xreg), sep = "")
+        }
         if(include.drift)
         {
             drift <- 1:length(x)
-            xreg <- cbind(xreg,drift)
+            xreg <- cbind(xreg,drift=drift)
         }
         if(is.null(xreg))
             tmp <- stats:::arima(x=x,order=order,seasonal=seasonal,include.mean=include.mean,
@@ -357,8 +358,7 @@ Arima <- function(x, order = c(0, 0, 0),
     }
     tmp$x <- x
     tmp$series <- deparse(substitute(x))
-    if(!is.null(xreg))
-        tmp$xreg <- xreg
+    tmp$xreg <- xreg
     tmp$call <- match.call()
     return(tmp)
 }
@@ -399,11 +399,13 @@ arima2 <- function (x, model, xreg)
     return(refit)
 }
 
+# Modified version of function in stats package
+
 print.Arima <- function (x, digits = max(3, getOption("digits") - 3), se = TRUE,
     ...)
 {
 #    if (!is.element("x", names(x)))
-#        x$x <- eval(parse(text = x$series))
+#        x$x <- eval.parent(parse(text = x$series))
 
     cat("Series:",x$series,"\n")
     cat(arima.string(x),"\n")
@@ -446,4 +448,60 @@ print.Arima <- function (x, digits = max(3, getOption("digits") - 3), se = TRUE,
         ":  part log likelihood = ", format(round(x$loglik, 2)),
         "\n", sep = "")
     invisible(x)
+}
+
+# Modified version of function in stats package
+
+predict.Arima <- function(object, n.ahead = 1, newxreg = NULL, se.fit = TRUE, ...) 
+{
+    myNCOL <- function(x) if (is.null(x)) 
+        0
+    else NCOL(x)
+    rsd <- object$residuals
+    ## LINES ADDED
+    if(!is.null(object$xreg))
+        object$call$xreg <- object$xreg
+    ## END ADDITION
+    xr <- object$call$xreg
+    xreg <- if (!is.null(xr)) 
+        eval.parent(xr)
+    else NULL
+    ncxreg <- myNCOL(xreg)
+    if (myNCOL(newxreg) != ncxreg) 
+        stop("'xreg' and 'newxreg' have different numbers of columns")
+    class(xreg) <- NULL
+    xtsp <- tsp(rsd)
+    n <- length(rsd)
+    arma <- object$arma
+    coefs <- object$coef
+    narma <- sum(arma[1:4])
+    if (length(coefs) > narma) {
+        if (names(coefs)[narma + 1] == "intercept") {
+            xreg <- cbind(intercept = rep(1, n), xreg)
+            newxreg <- cbind(intercept = rep(1, n.ahead), newxreg)
+            ncxreg <- ncxreg + 1
+        }
+        xm <- if (narma == 0) 
+            drop(as.matrix(newxreg) %*% coefs)
+        else drop(as.matrix(newxreg) %*% coefs[-(1:narma)])
+    }
+    else xm <- 0
+    if (arma[2] > 0) {
+        ma <- coefs[arma[1] + 1:arma[2]]
+        if (any(Mod(polyroot(c(1, ma))) < 1)) 
+            warning("MA part of model is not invertible")
+    }
+    if (arma[4] > 0) {
+        ma <- coefs[sum(arma[1:3]) + 1:arma[4]]
+        if (any(Mod(polyroot(c(1, ma))) < 1)) 
+            warning("seasonal MA part of model is not invertible")
+    }
+    z <- KalmanForecast(n.ahead, object$model)
+    pred <- ts(z[[1]] + xm, start = xtsp[2] + deltat(rsd), frequency = xtsp[3])
+    if (se.fit) {
+        se <- ts(sqrt(z[[2]] * object$sigma2), start = xtsp[2] + 
+            deltat(rsd), frequency = xtsp[3])
+        return(list(pred = pred, se = se))
+    }
+    else return(pred)
 }
