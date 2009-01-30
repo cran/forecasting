@@ -8,11 +8,11 @@ ets <- function(y, model="ZZZ", damped=NULL,
     bounds <- match.arg(bounds)
     ic <- match.arg(ic)
     
-    if(max(y) > 1e6)
+    if(max(y,na.rm=TRUE) > 1e6)
         warning("Very large numbers which may cause numerical problems. Try scaling the data first")
 
-    if(class(y)=="data.frame" | class(y)=="list" | class(y)=="matrix")
-        stop("y should be a vector")
+    if(class(y)=="data.frame" | class(y)=="list" | class(y)=="matrix" | is.element("mts",class(y)))
+        stop("y should be a univariate time series")
     y <- as.ts(y)
 
     if(nmse < 1 | nmse > 10)

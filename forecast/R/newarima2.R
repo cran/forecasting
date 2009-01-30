@@ -16,7 +16,8 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
         if (is.null(colnames(xreg))) 
             colnames(xreg) <- if (ncol(xreg) == 1) nmxreg
                               else paste(nmxreg, 1:ncol(xreg), sep = "")
-        xx <- residuals(lm(x ~ xreg))
+        xx <- ts(residuals(lm(x ~ xreg)))
+        tsp(xx) <- tsp(x)
     }
     else
         xx <- x

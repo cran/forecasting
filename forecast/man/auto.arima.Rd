@@ -52,7 +52,7 @@ outlined in Hyndman and Khandakar (2008).
 package for R", \emph{Journal of Statistical Software}, \bold{26}(3).}
 
 
-\seealso{\code{\link{arima}}}
+\seealso{\code{\link{Arima}}}
 
 \author{Rob J Hyndman}
 \examples{fit <- auto.arima(WWWusage)
