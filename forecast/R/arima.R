@@ -61,7 +61,7 @@ search.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     bestfit$series <- deparse(substitute(x))
     bestfit$ic <- NULL
     bestfit$call <- match.call()
-    bestfit$xreg <- xreg
+#    bestfit$xreg <- xreg
 
     if(trace)
         cat("\n\n")

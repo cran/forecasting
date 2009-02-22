@@ -13,6 +13,8 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     {
         nmxreg <- deparse(substitute(xreg))
         xreg <- as.matrix(xreg)
+        if(ncol(xreg)==1 & length(nmxreg) > 1)
+            nmxreg <- "xreg"
         if (is.null(colnames(xreg))) 
             colnames(xreg) <- if (ncol(xreg) == 1) nmxreg
                               else paste(nmxreg, 1:ncol(xreg), sep = "")
@@ -61,7 +63,11 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
         offset <- 0
 
     if(!stepwise)
-        return(search.arima(x,d,D,max.p,max.q,max.P,max.Q,max.order,stationary,ic,trace,approximation,xreg=xreg,offset=offset))
+    {
+        bestfit <- search.arima(x,d,D,max.p,max.q,max.P,max.Q,max.order,stationary,ic,trace,approximation,xreg=xreg,offset=offset)
+        bestfit$call <- match.call()
+        return(bestfit)
+    }
 
     # Starting model
     p <- start.p <- min(start.p,max.p)
@@ -285,7 +291,7 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     # Return best fit
     bestfit$x <- x
     bestfit$series <- deparse(substitute(x))
-    bestfit$ic=NULL
+    bestfit$ic <- NULL
     bestfit$call <- match.call()
 
     if(trace)
