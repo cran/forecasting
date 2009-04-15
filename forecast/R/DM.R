@@ -4,9 +4,9 @@ dm.test <- function(e1, e2,  alternative = c("two.sided", "less", "greater"), h=
 {
     alternative <- match.arg(alternative)
     d <- c(abs(e1))^power - c(abs(e2))^power
-    d.cov <- acf(d, lag.max = h-1, type = "covariance", plot=FALSE)$acf[,,1]
+    d.cov <- acf(d, na.action=na.omit,lag.max = h-1, type = "covariance", plot=FALSE)$acf[,,1]
     d.var <- max(1.0e-8, sum(c(d.cov[1], 2*d.cov[-1])) / length(d))
-    STATISTIC <- mean(d)/sqrt(d.var)
+    STATISTIC <- mean(d,na.rm=TRUE)/sqrt(d.var)
     names(STATISTIC) <- "DM"
     if (alternative == "two.sided") 
         PVAL <- 2 * pnorm(-abs(STATISTIC))

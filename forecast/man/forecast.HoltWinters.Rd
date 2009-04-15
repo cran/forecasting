@@ -46,7 +46,7 @@ An object of class \code{"forecast"} is a list containing at least the following
 
 \author{Rob J Hyndman}
 
-\examples{fit <- HoltWinters(WWWusage,gamma=0)
+\examples{fit <- HoltWinters(WWWusage,gamma=FALSE)
 plot(forecast(fit))
 }
 \keyword{ts}
