@@ -7,10 +7,14 @@ forecast.default <- function(object,...) forecast.ts(object,...)
 
 forecast.ts <- function(object, h=ifelse(frequency(object)>1, 2*frequency(object), 10), level=c(80,95), fan=FALSE, ...)
 {
-    forecast(ets(object,...),h=h,level=level,fan=fan)
+    n <- length(object)
+    if(n > 3)
+        forecast(ets(object,...),h=h,level=level,fan=fan)
+    else 
+        meanf(object,h=h,level=level,fan=fan,...)
 }
 
-print.forecast <- function(x,...)
+print.forecast <- function(x ,...)
 {
 #    cat(paste("Call:\n",deparse(x$call),"\n\n"))
     nconf <- length(x$level)
@@ -56,7 +60,7 @@ summary.forecast <- function(object,...)
 plot.forecast <- function(x, include, plot.conf=TRUE, shaded=TRUE,
         shadecols=switch(1+(length(x$level)>1),7,length(x$level):1),
         shadepalette=heat.colors(length(x$level)+2)[-1],
-        lambda=NULL, col=1,fcol=4, ylim=NULL, main=NULL, ylab="",xlab="",...)
+        lambda=NULL, col=1, fcol=4, pi.col=1, pi.lty=2, ylim=NULL, main=NULL, ylab="",xlab="",...)
 {
     if(is.element("x",names(x))) # Assume stored as x
         data=as.ts(x$x)
@@ -131,8 +135,8 @@ plot.forecast <- function(x, include, plot.conf=TRUE, shaded=TRUE,
                             col = shadecols[i], border=FALSE)
             else
             {
-                lines(xxx,lower[,idx[i]],lty=2)
-                lines(xxx,upper[,idx[i]],lty=2)
+                lines(xxx,lower[,idx[i]],col=pi.col,lty=pi.lty)
+                lines(xxx,upper[,idx[i]],col=pi.col,lty=pi.lty)
             }
         }
         if(shaded)

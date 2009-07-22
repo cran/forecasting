@@ -5,9 +5,10 @@
 
 \usage{
 \method{plot}{forecast}(x, include, plot.conf = TRUE, shaded = TRUE, shadecols
-				 = switch(1 + (length(x$level) > 1), 7, length(x$level):1),
+                 = switch(1 + (length(x$level) > 1), 7, length(x$level):1),
                 shadepalette=heat.colors(length(x$level)+2)[-1], lambda = NULL,
-				 col = 1, fcol = 4, ylim = NULL, main = NULL, ylab = "", xlab = "", ...)
+                 col = 1, fcol = 4, pi.col=1, pi.lty=2, ylim = NULL, main = NULL, 
+                 ylab = "", xlab = "", ...)
 \method{plot}{splineforecast}(x,fitcol=2,...)
 }
 \arguments{
@@ -21,6 +22,8 @@
 backtransforms data and forecasts using \code{\link{InvBoxCox}}.}
 \item{col}{the colour for the data line.}
 \item{fcol}{the colour for the forecast line.}
+\item{pi.col}{If \code{shade=FALSE} and \code{plot.conf=TRUE}, the prediction intervals are plotted in this colour.}
+\item{pi.lty}{If \code{shade=FALSE} and \code{plot.conf=TRUE}, the prediction intervals are plotted using this line type.}
 \item{ylim}{Limits on y-axis}
 \item{main}{Main title}
 \item{ylab}{Y-axis label}

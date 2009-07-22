@@ -144,7 +144,7 @@ ets <- function(y, model="ZZZ", damped=NULL,
     model$components <- c(best.e,best.t,best.s,best.d)
     model$call <- match.call()
     model$initstate <- model$states[1,]
-    model$sigma2 <- var(model$residuals,na.rm=TRUE)
+    model$sigma2 <- mean(model$residuals^2,na.rm=TRUE)
     model$x <- as.ts(y)
 
     return(structure(model,class="ets"))

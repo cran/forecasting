@@ -8,7 +8,8 @@ auto.arima(x, d = NA, D = NA, max.p = 5, max.q = 5,
            start.p=2, start.q=2, start.P=1, start.Q=1,
            stationary = FALSE, ic = c("aic","aicc", "bic"), 
            stepwise=TRUE, trace=FALSE, 
-           approximation=length(x)>100 | frequency(x)>12, xreg=NULL)
+           approximation=length(x)>100 | frequency(x)>12, xreg=NULL,
+           test=c("kpss","adf"))
 }
 
 \arguments{
@@ -36,6 +37,7 @@ auto.arima(x, d = NA, D = NA, max.p = 5, max.q = 5,
     for long time series or a high seasonal period to avoid excessive computation
     times.}
 \item{xreg}{Optionally, a vector or matrix of external regressors, which must have the same number of rows as x.}
+\item{test}{Type of unit root test to use. See \code{\link{ndiffs}} for details.}
 }
 \description{Returns best ARIMA model according to either AIC, AICc or BIC value.
 The function conducts a search over

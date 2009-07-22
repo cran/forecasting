@@ -3,9 +3,10 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     start.p=2, start.q=2, start.P=1, start.Q=1,
     stationary=FALSE, ic=c("aic","aicc","bic"),
     stepwise=TRUE, trace=FALSE,
-    approximation=length(x)>100 | frequency(x)>12,xreg=NULL)
+    approximation=length(x)>100 | frequency(x)>12,xreg=NULL,test=c("kpss","adf"))
 {
     ic <- match.arg(ic)
+    test <- match.arg(test)
     m <- frequency(x)
 
     # Choose order of differencing
@@ -34,7 +35,7 @@ auto.arima <- function(x, d=NA, D=NA, max.p=5, max.q=5,
     else
         dx <- xx
     if(is.na(d))
-        d <- ndiffs(dx)
+        d <- ndiffs(dx,test=test)
 
     if(m > 1)
     {

@@ -11,7 +11,7 @@
 \item{level}{Confidence level for prediction intervals.}
 \item{fan}{If TRUE, level is set to seq(50,99,by=1). This is suitable for fan plots.}
 \item{simulate}{If TRUE, prediction intervals produced by simulation rather than using analytic formulae.}
-\item{bootstrap}{If TRUE, simulation uses resampled errors rather than normally distributed errors.}
+\item{bootstrap}{If TRUE, and if \code{simulate=TRUE}, then simulation uses resampled errors rather than normally distributed errors.}
 \item{npaths}{Number of sample paths used in computing simulated prediction intervals.}
 \item{...}{Other arguments.}
 }
