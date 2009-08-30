@@ -18,9 +18,7 @@
 
 \description{Returns forecasts and other information for univariate ARIMA models.}
 
-\details{This function calls \code{\link[stats]{predict.arima}} or \code{\link[stats]{predict.ar}}
-and constructs an object of class
-"\code{forecast}" from the results.
+\details{This function calls \code{predict.arima} or \code{predict.ar} and constructs an object of class "\code{forecast}" from the results.
 }
 
 
@@ -44,7 +42,7 @@ An object of class "\code{forecast}" is a list containing at least the following
 \item{fitted}{Fitted values (one-step forecasts)}
 }
 
-\seealso{\code{\link[stats]{predict.arima}}, \code{\link[stats]{predict.ar}}, \code{\link{rwf}}, \code{\link[stats]{arima}}.}
+\seealso{\code{\link[stats]{predict.arima}}, \code{\link[stats]{ar}}, \code{\link[stats]{arima}}, \code{\link{rwf}}.}
 
 \author{Rob J Hyndman}
 

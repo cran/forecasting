@@ -20,7 +20,7 @@ that is modelled with the AR and MA terms. If you want the
 
 \author{Rob J Hyndman}
 
-\seealso{\code{\link[stats]{arima}}, \code{\link[base]{residuals}}}
+\seealso{\code{\link[stats]{arima}}, \code{\link[stats]{residuals}}}
 
 \examples{ukdeaths.fit <- Arima(UKDriverDeaths,c(1,0,1),c(0,1,1),xreg=Seatbelts[,"law"])
 ukdeaths.errors <- arima.errors(ukdeaths.fit)

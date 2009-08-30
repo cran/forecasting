@@ -43,10 +43,8 @@ auto.arima(x, d = NA, D = NA, max.p = 5, max.q = 5,
 The function conducts a search over
 possible model within the order constraints provided.}
 
-\details{Non-stepwise selection can be slow, especially for seasonal data.
-Non-seasonal differences chosen using \code{\link[tseries]{kpss.test}}.
-Seasonal differences chosen using a variation on the Canova-Hansen test. Stepwise algorithm
-outlined in Hyndman and Khandakar (2008).
+\details{Non-stepwise selection can be slow, especially for seasonal data. Non-seasonal differences chosen using the KPSS test. 
+Seasonal differences chosen using a variation on the Canova-Hansen test. Stepwise algorithm outlined in Hyndman and Khandakar (2008).
 }
 \value{Same as for \code{\link{arima}}}
 

@@ -11,12 +11,12 @@
 \item{season.labels}{Labels for each season in the "year"}
 \item{year.labels}{Logical flag indicating whether labels for each year of data should be plotted on the right.}
 \item{year.labels.left}{Logical flag indicating whether labels for each year of data should be plotted on the left.}
-\item{type}{plot type (as for \code{\link[base]{plot}})}
+\item{type}{plot type (as for \code{\link[graphics]{plot}})}
 \item{main}{Main title.}
 \item{ylab}{Y-axis label}
 \item{xlab}{X-axis label}
 \item{col}{Colour}
-\item{\dots}{additional arguments to \code{\link[base]{plot}}.} }
+\item{\dots}{additional arguments to \code{\link[graphics]{plot}}.} }
 \description{Plots a seasonal plot as described in Makridakis, Wheelwright and Hyndman (1998, chapter 2).
 }
 

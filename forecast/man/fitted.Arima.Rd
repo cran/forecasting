@@ -13,7 +13,7 @@
 
 \value{An time series of the one-step forecasts.}
 
-\seealso{\code{\link[stats]{forecast.Arima}}.}
+\seealso{\code{\link{forecast.Arima}}.}
 
 \author{Rob J Hyndman}
 

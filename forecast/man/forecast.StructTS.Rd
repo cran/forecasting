@@ -2,7 +2,7 @@
 \alias{forecast.StructTS}
 \title{Forecasting using Structural Time Series models}
 \usage{\method{forecast}{StructTS}(object, h=ifelse(object$call$type=="BSM",2*object$xtsp[3],10),
-	level=c(80,95), fan=FALSE, ...)
+    level=c(80,95), fan=FALSE, ...)
 }
 
 \arguments{
@@ -15,8 +15,7 @@
 
 \description{Returns forecasts and other information for univariate structural time series models.}
 
-\details{This function calls \code{\link[stats]{predict.StructTS}}
-and constructs an object of class "\code{forecast}" from the results.
+\details{This function calls \code{predict.StructTS} and constructs an object of class "\code{forecast}" from the results.
 }
 
 
@@ -40,7 +39,7 @@ An object of class \code{"forecast"} is a list containing at least the following
 \item{fitted}{Fitted values (one-step forecasts)}
 }
 
-\seealso{\code{\link[stats]{predict.StructTS}}, \code{\link[stats]{StructTS}}.}
+\seealso{\code{\link[stats]{StructTS}}.}
 
 \author{Rob J Hyndman}
 

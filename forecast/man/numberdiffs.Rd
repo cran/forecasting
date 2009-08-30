@@ -17,9 +17,6 @@ required to fail the test at the level \code{alpha}.}
 
 \value{An integer.}
 
-
-\seealso{\code{\link[tseries]{kpss.test}}}
-
 \author{Rob J Hyndman}
 
 \examples{ndiffs(WWWusage)}

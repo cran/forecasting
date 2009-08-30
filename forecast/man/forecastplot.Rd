@@ -29,7 +29,7 @@ backtransforms data and forecasts using \code{\link{InvBoxCox}}.}
 \item{ylab}{Y-axis label}
 \item{xlab}{X-axis label}
 \item{fitcol}{Line colour for fitted values.}
-\item{\dots}{additional arguments to \code{\link[base]{plot}}.} }
+\item{\dots}{additional arguments to \code{\link[graphics]{plot}}.} }
 \description{Plots a time series with forecasts and prediction intervals.}
 
 \value{None.

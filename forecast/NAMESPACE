@@ -33,8 +33,4 @@ S3method(simulate,ets)
 S3method(predict,default)
 S3method(logLik,ets)
 S3method(tsdiag,ets)
-
-
-
-
-
+S3method(as.data.frame,forecast)

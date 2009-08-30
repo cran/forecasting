@@ -46,7 +46,7 @@ An object of class \code{"forecast"} is a list containing at least the following
 splines. \emph{Australian and New Zealand Journal of Statistics}, \bold{47}(1), 87-99.
 \url{http://www.robhyndman.info/papers/splinefcast.htm}.}
 
-\seealso{\code{\link[base]{smooth.spline}},
+\seealso{\code{\link[stats]{smooth.spline}},
 \code{\link[stats]{arima}}, \code{\link{holt}}.}
 
 \author{Rob J Hyndman}

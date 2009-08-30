@@ -10,9 +10,8 @@ seasonaldummyf(x,h)
 \item{x}{Seasonal time series}
 \item{h}{Number of periods ahead to forecast}
 }
-\description{Returns matrix of dummy variables suitable for use in \code{\link[stats]{arima}},
-\code{\link[base]{lm}} or \code{\link[stats]{arima.predict}}.
-The last season is omitted and used as the control.}
+\description{Returns matrix of dummy variables suitable for use in \code{\link[stats]{arima}} or 
+\code{\link[stats]{lm}}. The last season is omitted and used as the control.}
 
 \value{Numerical matrix with number of rows equal to the \code{length(x)} and number of columns equal to \code{frequency(x)-1}.
 }
